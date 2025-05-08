@@ -25,8 +25,8 @@ Dria's Batch Inference API is an open-source, crowdsourced batch AI inference AP
 Create a `.jsonl` file where each line is a JSON object representing a single request. Each request must include a unique `custom_id` (UUID recommended), a `type`, a `version`, and a `body` with the model and input parameters. Example:
 
 ```jsonl
-{"custom_id": "7278c795-19fb-48cc-b9bd-7961904d1a8c", "type": "completions", "version": "v1", "body": {"model": "gpt-4o-mini", "max_tokens": 1024, "messages": [{"role": "user", "content": "Problem description..."}]}}
-{"custom_id": "fec80e3d-a1d4-445c-860e-87aa1fab4281", "type": "completions", "version": "v1", "body": {"model": "gpt-4o-mini", "max_tokens": 1024, "messages": [{"role": "user", "content": "Another prompt..."}]}}
+{"custom_id": "7278c795-19fb-48cc-b9bd-7961904d1a8c", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Problem description..."}]}}
+{"custom_id": "fec80e3d-a1d4-445c-860e-87aa1fab4281", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Another prompt..."}]}}
 ```
 
 - **custom_id**: Unique identifier for each request (UUID required)
@@ -88,8 +88,8 @@ After upload, your batch job will be processed asynchronously. You can:
 Each line in the output `.jsonl` file corresponds to a request, including the model, result, and token usage. Example:
 
 ```jsonl
-{"model": "gpt-4o-mini", "result": "...response text...", "token_count": 2333}
-{"model": "gpt-4o-mini", "result": "...response text...", "token_count": 2319}
+{"model": "gemma3:12b", "result": "...response text...", "token_count": 2333}
+{"model": "gemma3:12b", "result": "...response text...", "token_count": 2319}
 ```
 
 - Use `custom_id` to match input and output lines.
@@ -100,9 +100,8 @@ Each line in the output `.jsonl` file corresponds to a request, including the mo
 ## Limits and Plans
 
 - **Tasks per file:** Up to 100,000
-- **File size:** Up to 30B (bytes)
-- **Free plan:** 3 requests per day
-- **Developer plan:** 10 requests per day
+- **Free plan:** 3 files per day
+- **Developer plan:** 10 files per day
 - **Enterprise:** Custom limits (mail inference@dria.co)
 
 ---
@@ -114,7 +113,7 @@ Dria Batch API supports a wide range of models, including:
 - Claude 3.5 Sonnet
 - Gemini 2.5 Pro Experimental
 - Gemini 2.0 Flash
-- gemma3 4b, 12b, 27b
+- Gemma3 4b, 12b, 27b
 - GPT-4o-mini, GPT-4o
 - Llama 3.3 70B Instruct, 3.1 8B Instruct, 3.2 1B Instruct
 - Mistral Nemo
