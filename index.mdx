@@ -41,9 +41,9 @@ Example:
 ### 2. Upload Your Batch File (Python Example)
 
 Dria utilizes a two-step upload process:
-1. **Acquire a pre-signed URL for the upload**
-2. **Upload your file to the provided URL**
-3. **Complete the upload to begin processing**
+1. Acquire a pre-signed URL for the upload.
+2. Upload your file to the provided URL.
+3. Complete the upload to begin processing.
 
 ```python
 import requests
@@ -80,7 +80,7 @@ print('✅ Upload completed successfully:', complete_resp.json())
 ### 3. Monitor and Retrieve Results
 
 After the upload has been completed, your batch job will be processed asynchronously.Immediately following this you may:
-- Use the [web interface](https://dria.co/batch-inference) to upload, check of, and download any subsequent results
+- Use the [web interface](https://dria.co/batch-inference) to upload, check of, and download any subsequent results.
 
 ---
 
@@ -149,7 +149,7 @@ if not resp.ok:
 ## FAQ
 
 - **How do I check the status of my batch job?**
-  - Use the web interface
+  - Use the web interface.
 - **How are results delivered?**
   - Downloadable `.jsonl` file after processing.
 - **What if my upload fails?**
