@@ -12,7 +12,7 @@
     {
       "group": "Guide",
       "pages": [
-        "docs/dria-batch-api"
+        "index"
       ]
     }
   ],
@@ -20,7 +20,7 @@
     "Guides": [
       {
         "label": "Batch Inference Guide",
-        "file": "docs/dria-batch-api"
+        "file": "index"
       }
     ]
   },
