@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.claude/
+scripts/
+node_modules/
+research/
+artifacts/
+.dsp_cache/
+.dspy_cache/
+GEPA-TESTs/
+__pycache__/
