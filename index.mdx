@@ -5,16 +5,16 @@ title: Dria Batch Inference API
 
 ## Overview
 
-Dria's Batch Inference API is an open-source, crowdsourced batch AI inference API optimized for massive AI workloads. It is ideal for:
+Dria’s Batch Inference API is an open-source, crowdsourced batch AI inference API which is optimized for massive AI workloads. It’s ideal for:
 - Processing large amounts of data
-- Optimizing inference cost
+- Optimizing inference costs
 - Large-scale offline evaluations
 - Experimenting with offline workflows
 
 **Key benefits:**
-- **Cheapest inference for large jobs**
-- **High throughput**
-- **Asynchronous processing**
+- **Offers the cheapest inference for big jobs**
+- **Has high throughput**
+- **Offers asynchronous processing**
 
 ---
 
@@ -22,7 +22,9 @@ Dria's Batch Inference API is an open-source, crowdsourced batch AI inference AP
 
 ### 1. Prepare Your Batch File
 
-Create a `.jsonl` file where each line is a JSON object representing a single request. Each request must include a unique `custom_id` (UUID recommended), a `type`, a `version`, and a `body` with the model and input parameters. Example:
+Create a `.jsonl` file where each line is a JSON object representing a single request. Each request must include a unique `custom_id` (UUID recommended), a `type`, a `version`, and a `body` with the model and input parameters. 
+
+Example:
 
 ```jsonl
 {"custom_id": "7278c795-19fb-48cc-b9bd-7961904d1a8c", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Problem description..."}]}}
@@ -38,10 +40,10 @@ Create a `.jsonl` file where each line is a JSON object representing a single re
 
 ### 2. Upload Your Batch File (Python Example)
 
-Dria uses a two-step upload process:
-1. **Get a pre-signed upload URL**
-2. **Upload your file to the provided URL**
-3. **Complete the upload to start processing**
+Dria utilizes a two-step upload process:
+1. Acquire a pre-signed URL for the upload.
+2. Upload your file to the provided URL.
+3. Complete the upload to begin processing.
 
 ```python
 import requests
@@ -77,44 +79,16 @@ print('✅ Upload completed successfully:', complete_resp.json())
 
 ### 3. Monitor and Retrieve Results
 
-After upload, your batch job will be processed asynchronously. You can:
-- Use the [web interface](https://dria.co/batch-inference) to upload, check status, and download results
-- Programmatically poll the Batch Status API and download results once ready (example below)
-- Or, if available, use additional API endpoints for status/result retrieval (see dashboard or mail inference@dria.co)
-
-The snippet below reuses the `file_id` returned during the upload flow to poll for status updates and download the completed batch output:
-
-```python
-import time
-import requests
-
-def wait_for_batch(file_id, api_key, base_url, interval=30):
-    headers = {'x-api-key': api_key}
-    while True:
-        resp = requests.get(f'{base_url}/batch/status', params={'id': file_id}, headers=headers)
-        resp.raise_for_status()
-        data = resp.json()
-        print(f"Batch {file_id} status: {data['status']}")
-        if data['status'] in {'COMPLETED', 'FAILED'}:
-            return data
-        time.sleep(interval)
-
-status = wait_for_batch(file_id, api_key, base_url)
-if status['status'] == 'COMPLETED':
-    result = requests.get(f'{base_url}/batch/result', params={'id': file_id}, headers={'x-api-key': api_key})
-    result.raise_for_status()
-    with open('batch_result.jsonl', 'wb') as f:
-        f.write(result.content)
-    print('✅ Results downloaded to batch_result.jsonl')
-else:
-    print('❌ Batch failed:', status)
-```
+After the upload has been completed, your batch job will be processed asynchronously.Immediately following this you may:
+- Use the [web interface](https://dria.co/batch-inference) to upload, check of, and download any subsequent results.
 
 ---
 
 ## Example Output File
 
-Each line in the output `.jsonl` file corresponds to a request, including the model, result, and token usage. Example:
+Each line in the output `.jsonl` file corresponds to a request, including the model, result, and token usage. 
+
+Example:
 
 ```jsonl
 {"model": "gemma3:12b", "result": "...response text...", "token_count": 2333}
@@ -131,7 +105,7 @@ Each line in the output `.jsonl` file corresponds to a request, including the mo
 - **Tasks per file:** Up to 100,000
 - **Free plan:** 3 files per day
 - **Developer plan:** 10 files per day
-- **Enterprise:** Custom limits (mail inference@dria.co)
+- Enterprise: Custom Limits ( Reach out to “inference@dria.co“ )
 
 ---
 
@@ -148,7 +122,7 @@ See the [Dria Batch Inference page](https://dria.co/batch-inference) for the lat
 
 ## Web Interface
 
-You can use the [Dria Batch Inference web interface](https://dria.co/batch-inference) to:
+You can use the [Dria Batch Inference Web Interface](https://dria.co/batch-inference) to:
 - Upload `.jsonl` files
 - Check batch status
 - Download results
@@ -178,4 +152,4 @@ if not resp.ok:
 
 ---
 
-For more details or support, visit the [Dria Batch Inference page](https://dria.co/batch-inference). 
+For more details or support, visit the [Dria Batch Inference](https://dria.co/batch-inference) page. 
