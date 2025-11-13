@@ -79,7 +79,36 @@ print('✅ Upload completed successfully:', complete_resp.json())
 
 After upload, your batch job will be processed asynchronously. You can:
 - Use the [web interface](https://dria.co/batch-inference) to upload, check status, and download results
-- Or, if available, use API endpoints for status/result retrieval (see dashboard or mail inference@dria.co)
+- Programmatically poll the Batch Status API and download results once ready (example below)
+- Or, if available, use additional API endpoints for status/result retrieval (see dashboard or mail inference@dria.co)
+
+The snippet below reuses the `file_id` returned during the upload flow to poll for status updates and download the completed batch output:
+
+```python
+import time
+import requests
+
+def wait_for_batch(file_id, api_key, base_url, interval=30):
+    headers = {'x-api-key': api_key}
+    while True:
+        resp = requests.get(f'{base_url}/batch/status', params={'id': file_id}, headers=headers)
+        resp.raise_for_status()
+        data = resp.json()
+        print(f"Batch {file_id} status: {data['status']}")
+        if data['status'] in {'COMPLETED', 'FAILED'}:
+            return data
+        time.sleep(interval)
+
+status = wait_for_batch(file_id, api_key, base_url)
+if status['status'] == 'COMPLETED':
+    result = requests.get(f'{base_url}/batch/result', params={'id': file_id}, headers={'x-api-key': api_key})
+    result.raise_for_status()
+    with open('batch_result.jsonl', 'wb') as f:
+        f.write(result.content)
+    print('✅ Results downloaded to batch_result.jsonl')
+else:
+    print('❌ Batch failed:', status)
+```
 
 ---
 
@@ -109,12 +138,7 @@ Each line in the output `.jsonl` file corresponds to a request, including the mo
 ## Supported Models
 
 Dria Batch API supports a wide range of models, including:
-- Claude 3.7 Sonnet
-- Claude 3.5 Sonnet
-- Gemini 2.5 Pro Experimental
-- Gemini 2.0 Flash
 - Gemma3 4b, 12b, 27b
-- GPT-4o-mini, GPT-4o
 - Llama 3.3 70B Instruct, 3.1 8B Instruct, 3.2 1B Instruct
 - Mistral Nemo
 
@@ -146,7 +170,7 @@ if not resp.ok:
 ## FAQ
 
 - **How do I check the status of my batch job?**
-  - Use the web interface
+  - Use the web interface or poll the status API as shown above
 - **How are results delivered?**
   - Downloadable `.jsonl` file after processing.
 - **What if my upload fails?**

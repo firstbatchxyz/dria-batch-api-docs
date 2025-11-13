@@ -12,7 +12,8 @@
     {
       "group": "Guide",
       "pages": [
-        "index"
+        "index",
+        "gepa"
       ]
     }
   ],
@@ -21,6 +22,10 @@
       {
         "label": "Batch Inference Guide",
         "file": "index"
+      },
+      {
+        "label": "GEPA Prompt Optimization",
+        "file": "gepa"
       }
     ]
   },
