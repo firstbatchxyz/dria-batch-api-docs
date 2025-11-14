@@ -9,25 +9,46 @@
     "primary": "#2B6CB0"
   },
   "navigation": {
-    "pages": [
+    "groups": [
       {
         "group": "Introduction",
+        "icon": "book-open",
         "pages": ["docs/intro"]
       },
       {
-        "group": "Dria Batch Inference API",
-        "openapi": "http://localhost:8088/api/dev/doc",
+        "group": "Batch Inference",
+        "expanded": true,
         "pages": [
           "docs/batch/index",
-          "GET /api/dev/file/get_upload_url",
-          "POST /api/dev/batch/complete_upload",
-          "GET /api/dev/batch/all_jobs",
-          "GET /api/dev/batch/job"
+          {
+            "group": "API Reference",
+            "expanded": false,
+            "openapi": "https://testnet.dkn.dria.co/api/v0/openapi.json",
+            "pages": [
+              "GET /api/v0/file/get_upload_url",
+              "POST /api/v0/batch/complete_upload",
+              "GET /api/v0/batch/all_jobs",
+              "GET /api/v0/batch/job"
+            ]
+          }
         ]
       },
       {
         "group": "Gepa",
-        "pages": ["docs/gepa/index"]
+        "pages": [
+          "docs/gepa/index",
+          {
+            "group": "API Reference",
+            "expanded": false,
+            "openapi": "https://testnet.dkn.dria.co/api/v0/openapi.json",
+            "pages": [
+              "POST /api/v0/gepa/start_execution",
+              "GET /api/v0/gepa/get_all_executions",
+              "GET /api/v0/gepa/get_single_execution/{evolutionId}",
+              "GET /api/v0/gepa/get_execution_prompts"
+            ]
+          }
+        ]
       }
     ]
   },
