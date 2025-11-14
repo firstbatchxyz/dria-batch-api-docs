@@ -4,25 +4,21 @@
   "description": "Documentation for Dria's open-source, crowdsourced API's.",
   "icon": "📦",
   "favicon": "favicon.png",
-  "theme": "venus",
+  "theme": "mint",
   "colors": {
     "primary": "#2B6CB0"
   },
-  "navigation": [
-    {
-      "group": "Guide",
-      "pages": ["index", "batch", "gepa"]
-    }
-  ],
-  "sidebar": {
-    "Guides": [
+  "navigation": {
+    "tabs": [
       {
-        "label": "Batch Inference Guide",
-        "file": "batch"
+        "tab": "Guides",
+        "icon": "code",
+        "pages": ["index", "batch", "gepa"]
       },
       {
-        "label": "GEPA Prompt Optimization",
-        "file": "gepa"
+        "tab": "API Reference",
+        "icon": "square-terminal",
+        "openapi": "http://localhost:8088/api/dev/doc"
       }
     ]
   },
