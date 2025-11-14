@@ -57,88 +57,35 @@ Once completed, fetch the prompt evolution history to see how your prompt improv
 
 ---
 
-## Python Example
+## API Reference
 
-```python
-import requests
-import time
-import json
+**Base URL:** `https://mainnet.dkn.dria.co/api/v0`
 
-api_key = '<YOUR_API_KEY>'
-base_url = 'https://mainnet.dkn.dria.co/api/v0'
+All endpoints require `x-api-key` header.
 
-# Step 1: Prepare payload
-payload = {
-    "customId": "my-prompt-evolution",
-    "strategy": "RPM",
-    "model": "gpt-4o",
-    "datasetColumns": ["customer_name", "product", "issue"],
-    "budget": 25,
-    "minibatchSize": 2,
-    "paretoSize": 2,
-    "evaluator": json.dumps({"model": "gpt-4o-mini", "metric": "coherence"}),
-    "dataset": [
-        {
-            "input": {"customer_name": "Alice", "product": "Router", "issue": "connection drops"},
-            "expectedOutput": "Hi Alice, I've reset your router settings..."
-        },
-        {
-            "input": {"customer_name": "Charlie", "product": "Router", "issue": "firmware update"},
-            "expectedOutput": "Hi Charlie, I've updated your router firmware..."
-        },
-        {
-            "input": {"customer_name": "Bob", "product": "Router", "issue": "slow speed"},
-            "expectedOutput": "Hi Bob, I've optimized your QoS settings..."
-        },
-        {
-            "input": {"customer_name": "Dana", "product": "Router", "issue": "WiFi range"},
-            "expectedOutput": "Hi Dana, I've adjusted your antenna settings..."
-        }
-    ],
-    "prompt": "Write a helpful support reply for {customer_name} about their {product}: {issue}"
-}
+### `POST /gepa/start_execution`
+Start a new prompt evolution. Returns `{"evolutionId": "uuid"}`.
 
-# Step 2: Start execution
-resp = requests.post(f'{base_url}/gepa/start_execution',
-    headers={'x-api-key': api_key, 'Content-Type': 'application/json'},
-    json=payload)
-resp.raise_for_status()
-evolution_id = resp.json()['evolutionId']
-print(f'✅ Evolution started: {evolution_id}')
+**Required fields:**
+- `customId`: Your identifier for this run
+- `strategy`: `"RPM"` (Reflective Prompt Mutation) - currently the only available strategy
+- `model`: Model name - must be one from the available models (e.g., `gpt-4o`, `gpt-4o-mini`)
+- `datasetColumns`: Array of variable names
+- `budget`: Inference budget (minimum 10, recommended 25-50)
+- `minibatchSize`: Number of feedback examples per generation
+- `paretoSize`: Number of pareto (validation) examples
+- `evaluator`: JSON string with `model` field and metric config (e.g., `{"model": "gpt-4o-mini", "metric": "accuracy", "threshold": 0.9}`)
+- `dataset`: Array of examples - size must equal `minibatchSize + paretoSize`. Each item needs `input` (object), `expectedOutput` (string, min length 1). First `minibatchSize` items are feedback, next `paretoSize` items are pareto
+- `prompt`: Your seed prompt template
 
-# Wait for initialization
-time.sleep(5)
+### `GET /gepa/get_all_executions`
+List your executions. Supports `?page=1&limit=10` pagination.
 
-# Step 3: Monitor progress
-while True:
-    status_resp = requests.get(f'{base_url}/gepa/get_single_execution/{evolution_id}',
-        headers={'x-api-key': api_key})
-    status_resp.raise_for_status()
-    data = status_resp.json()
+### `GET /gepa/get_single_execution/{evolutionId}`
+Get detailed status, current score, generation, and prompt.
 
-    if 'prompt' in data:
-        print(f"Status: {data['status']} | Gen: {data['prompt']['currentGeneration']} | Score: {data['prompt']['currentPromptScore']}")
-    else:
-        print(f"Status: {data['status']}")
-
-    if data['status'] in ['completed', 'failed']:
-        break
-    time.sleep(10)
-
-# Step 4: Get evolved prompts
-if data['status'] == 'completed':
-    prompts_resp = requests.get(f'{base_url}/gepa/get_execution_prompts',
-        params={'evolutionId': evolution_id, 'page': 1, 'limit': 20},
-        headers={'x-api-key': api_key})
-    prompts_resp.raise_for_status()
-
-    prompts = prompts_resp.json()['prompts']
-    print(f'\n✅ Evolution complete! {len(prompts)} generations')
-    for p in prompts:
-        print(f"\nGen {p['generation']} (score: {p['score']}):\n{p['prompt'][:200]}...")
-else:
-    print('❌ Evolution failed')
-```
+### `GET /gepa/get_execution_prompts`
+Get evolution history. Requires `?evolutionId=...`. Supports pagination.
 
 ---
 
@@ -317,35 +264,88 @@ This demonstrates GEPA's reflective learning: the final prompt contains specific
 
 ---
 
-## API Reference
+## Python Example
 
-**Base URL:** `https://mainnet.dkn.dria.co/api/v0`
+```python
+import requests
+import time
+import json
 
-All endpoints require `x-api-key` header.
+api_key = '<YOUR_API_KEY>'
+base_url = 'https://mainnet.dkn.dria.co/api/v0'
 
-### `POST /gepa/start_execution`
-Start a new prompt evolution. Returns `{"evolutionId": "uuid"}`.
+# Step 1: Prepare payload
+payload = {
+    "customId": "my-prompt-evolution",
+    "strategy": "RPM",
+    "model": "gpt-4o",
+    "datasetColumns": ["customer_name", "product", "issue"],
+    "budget": 25,
+    "minibatchSize": 2,
+    "paretoSize": 2,
+    "evaluator": json.dumps({"model": "gpt-4o-mini", "metric": "coherence"}),
+    "dataset": [
+        {
+            "input": {"customer_name": "Alice", "product": "Router", "issue": "connection drops"},
+            "expectedOutput": "Hi Alice, I've reset your router settings..."
+        },
+        {
+            "input": {"customer_name": "Charlie", "product": "Router", "issue": "firmware update"},
+            "expectedOutput": "Hi Charlie, I've updated your router firmware..."
+        },
+        {
+            "input": {"customer_name": "Bob", "product": "Router", "issue": "slow speed"},
+            "expectedOutput": "Hi Bob, I've optimized your QoS settings..."
+        },
+        {
+            "input": {"customer_name": "Dana", "product": "Router", "issue": "WiFi range"},
+            "expectedOutput": "Hi Dana, I've adjusted your antenna settings..."
+        }
+    ],
+    "prompt": "Write a helpful support reply for {customer_name} about their {product}: {issue}"
+}
 
-**Required fields:**
-- `customId`: Your identifier for this run
-- `strategy`: `"RPM"` (Reflective Prompt Mutation) - currently the only available strategy
-- `model`: Model name - must be one from the available models (e.g., `gpt-4o`, `gpt-4o-mini`)
-- `datasetColumns`: Array of variable names
-- `budget`: Inference budget (minimum 10, recommended 25-50)
-- `minibatchSize`: Number of feedback examples per generation
-- `paretoSize`: Number of pareto (validation) examples
-- `evaluator`: JSON string with `model` field and metric config (e.g., `{"model": "gpt-4o-mini", "metric": "accuracy", "threshold": 0.9}`)
-- `dataset`: Array of examples - size must equal `minibatchSize + paretoSize`. Each item needs `input` (object), `expectedOutput` (string, min length 1). First `minibatchSize` items are feedback, next `paretoSize` items are pareto
-- `prompt`: Your seed prompt template
+# Step 2: Start execution
+resp = requests.post(f'{base_url}/gepa/start_execution',
+    headers={'x-api-key': api_key, 'Content-Type': 'application/json'},
+    json=payload)
+resp.raise_for_status()
+evolution_id = resp.json()['evolutionId']
+print(f'✅ Evolution started: {evolution_id}')
 
-### `GET /gepa/get_all_executions`
-List your executions. Supports `?page=1&limit=10` pagination.
+# Wait for initialization
+time.sleep(5)
 
-### `GET /gepa/get_single_execution/{evolutionId}`
-Get detailed status, current score, generation, and prompt.
+# Step 3: Monitor progress
+while True:
+    status_resp = requests.get(f'{base_url}/gepa/get_single_execution/{evolution_id}',
+        headers={'x-api-key': api_key})
+    status_resp.raise_for_status()
+    data = status_resp.json()
 
-### `GET /gepa/get_execution_prompts`
-Get evolution history. Requires `?evolutionId=...`. Supports pagination.
+    if 'prompt' in data:
+        print(f"Status: {data['status']} | Gen: {data['prompt']['currentGeneration']} | Score: {data['prompt']['currentPromptScore']}")
+    else:
+        print(f"Status: {data['status']}")
+
+    if data['status'] in ['completed', 'failed']:
+        break
+    time.sleep(10)
+
+# Step 4: Get evolved prompts
+if data['status'] == 'completed':
+    prompts_resp = requests.get(f'{base_url}/gepa/get_execution_prompts',
+        params={'evolutionId': evolution_id, 'page': 1, 'limit': 20},
+        headers={'x-api-key': api_key})
+    prompts_resp.raise_for_status()
+
+    prompts = prompts_resp.json()['prompts']
+    print(f'\n✅ Evolution complete! {len(prompts)} generations')
+    for p in prompts:
+        print(f"\nGen {p['generation']} (score: {p['score']}):\n{p['prompt'][:200]}...")
+else:
+    print('❌ Evolution failed')
+```
 
 ---
 
@@ -370,11 +370,11 @@ Get evolution history. Requires `?evolutionId=...`. Supports pagination.
   - `expectedOutput` is empty string
 
 **What models are supported?**
-- `gpt-5-mini-2025-08-07` - Latest GPT-5 Mini
-- `gpt-5-2025-08-07` - Latest GPT-5
-- `gpt-4.1-2025-04-14` - GPT-4.1
-- `gpt-4o-2024-08-06` - GPT-4o (recommended for best quality)
-- `gpt-4o-mini-2024-07-18` - GPT-4o Mini (faster and cost-effective)
+- `gpt-5-mini` - Latest GPT-5 Mini
+- `gpt-5` - Latest GPT-5
+- `gpt-4.1` - GPT-4.1
+- `gpt-4o` - GPT-4o
+- `gpt-4o-mini` - GPT-4o Mini
 
 **What strategy should I use?**
 - Currently only `RPM` (Reflective Prompt Mutation) is available. RPM works well for most use cases including pedagogical prompts, support responses, and code review templates.
