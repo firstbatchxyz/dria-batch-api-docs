@@ -2,7 +2,6 @@
   "name": "Dria API Docs",
   "title": "Dria API",
   "description": "Documentation for Dria's open-source, crowdsourced API's.",
-  "icon": "📦",
   "favicon": "favicon.png",
   "theme": "mint",
   "colors": {
@@ -17,6 +16,7 @@
       },
       {
         "group": "Batch Inference",
+        "icon": "box-isometric",
         "expanded": true,
         "pages": [
           "docs/batch/overview",
@@ -28,6 +28,7 @@
           "docs/batch/troubleshooting",
           {
             "group": "API Reference",
+            "icon": "code",
             "expanded": false,
             "openapi": "https://testnet.dkn.dria.co/api/v0/openapi.json",
             "pages": [
@@ -41,16 +42,17 @@
       },
       {
         "group": "Gepa",
+        "icon": "flask",
         "pages": [
           "docs/gepa/overview",
           "docs/gepa/getting-started",
-          "docs/gepa/api-reference",
           "docs/gepa/examples",
           "docs/gepa/tutorials",
           "docs/gepa/faq",
           "docs/gepa/resources",
           {
             "group": "API Reference",
+            "icon": "code",
             "expanded": false,
             "openapi": "https://testnet.dkn.dria.co/api/v0/openapi.json",
             "pages": [
