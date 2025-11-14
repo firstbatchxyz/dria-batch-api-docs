@@ -9,16 +9,25 @@
     "primary": "#2B6CB0"
   },
   "navigation": {
-    "tabs": [
+    "pages": [
       {
-        "tab": "Guides",
-        "icon": "code",
-        "pages": ["index", "batch", "gepa"]
+        "group": "Introduction",
+        "pages": ["docs/intro"]
       },
       {
-        "tab": "API Reference",
-        "icon": "square-terminal",
-        "openapi": "http://localhost:8088/api/dev/doc"
+        "group": "Dria Batch Inference API",
+        "openapi": "http://localhost:8088/api/dev/doc",
+        "pages": [
+          "docs/batch/index",
+          "GET /api/dev/file/get_upload_url",
+          "POST /api/dev/batch/complete_upload",
+          "GET /api/dev/batch/all_jobs",
+          "GET /api/dev/batch/job"
+        ]
+      },
+      {
+        "group": "Gepa",
+        "pages": ["docs/gepa/index"]
       }
     ]
   },
