@@ -19,7 +19,13 @@
         "group": "Batch Inference",
         "expanded": true,
         "pages": [
-          "docs/batch/index",
+          "docs/batch/overview",
+          "docs/batch/prepare-batch",
+          "docs/batch/upload",
+          "docs/batch/monitoring",
+          "docs/batch/limits",
+          "docs/batch/web-interface",
+          "docs/batch/troubleshooting",
           {
             "group": "API Reference",
             "expanded": false,
@@ -36,7 +42,13 @@
       {
         "group": "Gepa",
         "pages": [
-          "docs/gepa/index",
+          "docs/gepa/overview",
+          "docs/gepa/getting-started",
+          "docs/gepa/api-reference",
+          "docs/gepa/examples",
+          "docs/gepa/tutorials",
+          "docs/gepa/faq",
+          "docs/gepa/resources",
           {
             "group": "API Reference",
             "expanded": false,

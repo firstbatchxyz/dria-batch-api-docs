@@ -1,0 +1,43 @@
+---
+title: GEPA FAQ
+---
+
+## FAQ
+
+**How long does evolution take?**
+
+- Depends on budget and model. With `budget=30` and `gpt-4o`, expect 5-15 minutes.
+
+**What's the minimum dataset size?**
+
+- Dataset size must equal `minibatchSize + paretoSize`. Minimum recommended is 4 items (2 feedback + 2 pareto).
+
+**Can I stop an execution?**
+
+- Executions run until completion or budget exhaustion. Monitor via `get_single_execution`.
+
+**What if my execution fails?**
+
+- Common issues:
+  - Dataset size doesn't match `minibatchSize + paretoSize`
+  - Using models that are not supported
+  - Missing `model` field in evaluator JSON
+  - Invalid evaluator JSON format
+  - Missing `input` or `expectedOutput` in dataset items
+  - `expectedOutput` is empty string
+
+**What models are supported?**
+
+- `gpt-5-mini` - Latest GPT-5 Mini
+- `gpt-5` - Latest GPT-5
+- `gpt-4.1` - GPT-4.1
+- `gpt-4o` - GPT-4o
+- `gpt-4o-mini` - GPT-4o Mini
+
+**What strategy should I use?**
+
+- Currently only `RPM` (Reflective Prompt Mutation) is available. RPM works well for most use cases including pedagogical prompts, support responses, and code review templates.
+
+**Do I need to provide a model in the evaluator?**
+
+- Yes, the evaluator JSON must include a `model` field (e.g., `"model": "gpt-4o-mini"`)

@@ -1,0 +1,21 @@
+---
+title: Prepare Batch Files
+---
+
+## Getting Started
+
+### 1. Prepare Your Batch File
+
+Create a `.jsonl` file where each line is a JSON object representing a single request. Each request must include a unique `custom_id` (UUID recommended), a `type`, a `version`, and a `body` with the model and input parameters.
+
+Example:
+
+```jsonl
+{"custom_id": "7278c795-19fb-48cc-b9bd-7961904d1a8c", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Problem description..."}]}}
+{"custom_id": "fec80e3d-a1d4-445c-860e-87aa1fab4281", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Another prompt..."}]}}
+```
+
+- **custom_id**: Unique identifier for each request (UUID required)
+- **type**: Task type (e.g., "completions")
+- **version**: API version (e.g., "v1")
+- **body**: Model and input parameters (see supported models below)

@@ -1,0 +1,190 @@
+---
+title: GEPA Tutorials
+---
+
+## Tutorials
+
+Use the examples below to understand GEPA on three common workloads. Each tutorial shows real-world configurations that have been tested and successfully completed. You can copy these payloads and adapt them to your use case.
+
+### Tutorial 1: Math Word Problems
+
+**Goal:** Evolve a pedagogical prompt that walks students through mental arithmetic step-by-step.
+
+**Strategy:** RPM (Reflective Prompt Mutation) with exact match evaluation
+
+**Key Configuration:**
+
+- `datasetColumns`: `["problem", "hint"]` - Two-column format for question and teaching hint
+- `evaluator`: `{"model": "gpt-4o-mini", "metric": "exact_match", "threshold": 0.95, "partialCredit": true}` - Rewards both exact matches and near misses
+- Dataset: 3 feedback items + 4 pareto items = 7 total (matching minibatchSize + paretoSize)
+- Budget: 30 generations for thorough exploration
+
+**Expected Results:** This configuration achieved a score of 0.993, evolving from a basic prompt to a detailed 40+ line guide with specific examples for addition, multiplication, and rounding strategies.
+
+Example payload:
+
+```json
+{
+  "customId": "math-tutor-run-001",
+  "strategy": "RPM",
+  "model": "gpt-4o",
+  "datasetColumns": ["problem", "hint"],
+  "budget": 30,
+  "minibatchSize": 3,
+  "paretoSize": 4,
+  "evaluator": "{\"model\": \"gpt-4o-mini\", \"metric\": \"exact_match\", \"threshold\": 0.95, \"partialCredit\": true}",
+  "dataset": [
+    {
+      "input": {
+        "problem": "Add 47 and 38 without paper.",
+        "hint": "Break numbers into tens and ones."
+      },
+      "expectedOutput": "Answer: 85"
+    },
+    {
+      "input": {
+        "problem": "What is 125 - 67?",
+        "hint": "Borrow carefully and explain."
+      },
+      "expectedOutput": "Answer: 58"
+    },
+    {
+      "input": {
+        "problem": "Calculate 9 * 8.",
+        "hint": "Use repeated addition or times table."
+      },
+      "expectedOutput": "Answer: 72"
+    },
+    {
+      "input": {
+        "problem": "Solve 12 * 14 using mental math.",
+        "hint": "Split one factor into tens and ones."
+      },
+      "expectedOutput": "Answer: 168"
+    },
+    {
+      "input": {
+        "problem": "What is 200 - 87?",
+        "hint": "Try counting up or borrowing."
+      },
+      "expectedOutput": "Answer: 113"
+    },
+    {
+      "input": {
+        "problem": "Add 156 + 89.",
+        "hint": "Round 89 to 90 first."
+      },
+      "expectedOutput": "Answer: 245"
+    },
+    {
+      "input": {
+        "problem": "Divide 144 by 12.",
+        "hint": "Think of 12 times table."
+      },
+      "expectedOutput": "Answer: 12"
+    }
+  ],
+  "prompt": "You are an encouraging math tutor. Walk the student through each step, narrate your reasoning, and end with `Answer: <value>`."
+}
+```
+
+**Workflow:**
+
+1. Submit the payload using the Python example above
+2. Monitor progress - expect 5-10 minutes for completion
+3. Check score evolution through `get_single_execution` endpoint
+4. Once completed, retrieve evolved prompts using `get_execution_prompts`
+5. Compare initial vs final prompt to see improvements in pedagogical structure
+
+**Real Results:** Initial prompt (score 0) → Final prompt (score 0.993) with detailed breakdowns like "Start with 47, add 30 to get 77, then add 8 to reach 85"
+
+### Tutorial 2: Code Review with Security Focus
+
+**Goal:** Evolve a prompt that reviews pull requests with focus on security vulnerabilities and best practices.
+
+**Strategy:** RPM (Reflective Prompt Mutation) with exact match evaluation
+
+**Key Configuration:**
+
+- `datasetColumns`: `["diff", "toolFindings"]` - Code diff and static analysis output
+- `evaluator`: `{"model": "gpt-4o-mini", "metric": "exact_match", "threshold": 0.8}` - Lower threshold for complex security analysis
+- Dataset: 3 feedback items + 4 pareto items = 7 total (matching minibatchSize + paretoSize)
+- Budget: 40 generations for comprehensive security pattern learning
+
+**Expected Results:** This configuration achieved a score of 0.314 (starting from 0.14), evolving toward more structured security review methodology with specific examples for CORS policies, SQL injection, and path traversal.
+
+Example payload:
+
+```json
+{
+  "customId": "code-review-run-009",
+  "strategy": "RPM",
+  "model": "gpt-4o",
+  "datasetColumns": ["diff", "toolFindings"],
+  "budget": 40,
+  "minibatchSize": 3,
+  "paretoSize": 4,
+  "evaluator": "{\"model\": \"gpt-4o-mini\", \"metric\": \"exact_match\", \"threshold\": 0.8}",
+  "dataset": [
+    {
+      "input": {
+        "diff": "@@ -24,6 +24,11 @@\n+  if (!user) {\n+    throw new Error('missing user');\n+  }\n+  if (!user.email) {\n+    return;\n+  }\n+  sendEmail(user.email);",
+        "toolFindings": "WARN: sendEmail runs without rate limiting."
+      },
+      "expectedOutput": "1. Highlight missing rate limiting. 2. Suggest retry/backoff strategy."
+    },
+    {
+      "input": {
+        "diff": "@@ -88,7 +88,12 @@\n- const auth = req.headers['Authorization'];\n+ const auth = req.headers['authorization'];\n+ if (!auth) {\n+   res.status(401).send('missing token');\n+   return;\n+ }",
+        "toolFindings": "WARN: continues execution after sending 401."
+      },
+      "expectedOutput": "Flag missing return, advise using early exit after response."
+    },
+    {
+      "input": {
+        "diff": "@@ -55,8 +55,15 @@\n+app.use(cors({origin: '*'}));",
+        "toolFindings": "WARN: CORS policy allows all origins."
+      },
+      "expectedOutput": "Explain CORS risk with wildcard origin, recommend allowlist."
+    },
+    {
+      "input": {
+        "diff": "@@ -12,6 +12,16 @@\n  const query = `SELECT * FROM orders WHERE id = ${orderId}`;\n  return db.execute(query);",
+        "toolFindings": "CRIT: SQL injection risk due to string interpolation."
+      },
+      "expectedOutput": "Explain SQL injection vector and recommend parameterized query."
+    },
+    {
+      "input": {
+        "diff": "@@ -45,9 +45,14 @@\n+  const token = jwt.sign({userId}, SECRET, {expiresIn: '365d'});",
+        "toolFindings": "WARN: token expiration set to 1 year."
+      },
+      "expectedOutput": "Recommend shorter token lifetime (e.g., 15 minutes) with refresh mechanism."
+    },
+    {
+      "input": {
+        "diff": "@@ -78,6 +78,10 @@\n+  const filePath = path.join(UPLOAD_DIR, userInput);\n+  return fs.readFileSync(filePath);",
+        "toolFindings": "CRIT: Path traversal vulnerability with unsanitized input."
+      },
+      "expectedOutput": "Identify path traversal risk, recommend path sanitization and validation."
+    },
+    {
+      "input": {
+        "diff": "@@ -92,7 +92,11 @@\n+  const result = eval(userFormula);",
+        "toolFindings": "CRIT: eval() with user input enables code injection."
+      },
+      "expectedOutput": "Flag eval() as critical security issue, recommend safe expression parser."
+    }
+  ],
+  "prompt": "You are a senior engineer reviewing pull requests. Summarize the key risks, reference static analysis findings explicitly, and propose concrete fixes."
+}
+```
+
+**Workflow:**
+
+1. Submit the payload with security-focused dataset
+2. Monitor progress - expect 10-15 minutes for completion
+3. Track improvements through generations
+4. Once completed, compare initial vs evolved prompt for security pattern recognition
+
+**Real Results:** Initial prompt (score 0.14) → Final prompt (score 0.314) with structured security review covering CORS validation, SQL injection detection, and path traversal prevention

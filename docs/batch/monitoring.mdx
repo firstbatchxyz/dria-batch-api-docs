@@ -1,0 +1,25 @@
+---
+title: Monitor Batch Jobs
+---
+
+### 3. Monitor and Retrieve Results
+
+After the upload has been completed, your batch job will be processed asynchronously. Immediately following this you may:
+
+- Use the [web interface](https://dria.co/batch-inference) to upload, check of, and download any subsequent results.
+
+---
+
+## Example Output File
+
+Each line in the output `.jsonl` file corresponds to a request, including the model, result, and token usage.
+
+Example:
+
+```jsonl
+{"model": "gemma3:12b", "result": "...response text...", "token_count": 2333}
+{"model": "gemma3:12b", "result": "...response text...", "token_count": 2319}
+```
+
+- Use `custom_id` to match input and output lines.
+- Failed requests will include error information.

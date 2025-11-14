@@ -1,0 +1,39 @@
+---
+title: GEPA Getting Started
+---
+
+## Getting Started
+
+### 1. Prepare Your Dataset
+
+Create a JSON payload with:
+
+- **Seed prompt**: Your initial prompt template
+- **Dataset**: Examples with inputs and expected outputs (size must equal minibatchSize + paretoSize)
+- **Evaluator**: Must use available models
+- **Budget**: Number of inference calls (minimum 10, recommended 25-50)
+- **Model**: Must use available models
+
+Each dataset item needs:
+
+- `input`: Object with variables matching your `datasetColumns`
+- `expectedOutput`: The desired response (minimum 1 character)
+
+**Important:** Dataset size must equal `minibatchSize + paretoSize`. The first `minibatchSize` items are used for training (feedback), and the next `paretoSize` items are used for validation (pareto). For example, if `minibatchSize: 3` and `paretoSize: 4`, you need exactly 7 dataset items in order.
+
+### 2. Submit Execution
+
+POST your payload to start evolution. The API returns an `evolutionId` immediately.
+
+### 3. Monitor Progress
+
+Poll the execution status every 10-30 seconds until completion. Status values:
+
+- `pending`: Job queued
+- `in_progress`: Actively evolving
+- `completed`: Finished successfully
+- `failed`: Encountered an error
+
+### 4. Retrieve Results
+
+Once completed, fetch the prompt evolution history to see how your prompt improved across generations.
