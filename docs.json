@@ -30,7 +30,7 @@
             "group": "API Reference",
             "icon": "code",
             "expanded": false,
-            "openapi": "https://testnet.dkn.dria.co/api/v0/openapi.json",
+            "openapi": "https://mainnet.dkn.dria.co/api/v0/openapi.json",
             "pages": [
               "GET /api/v0/file/get_upload_url",
               "POST /api/v0/batch/complete_upload",
@@ -54,7 +54,7 @@
             "group": "API Reference",
             "icon": "code",
             "expanded": false,
-            "openapi": "https://testnet.dkn.dria.co/api/v0/openapi.json",
+            "openapi": "https://mainnet.dkn.dria.co/api/v0/openapi.json",
             "pages": [
               "POST /api/v0/gepa/start_execution",
               "GET /api/v0/gepa/get_all_executions",
