@@ -1,0 +1,27 @@
+---
+title: Troubleshooting & FAQ
+---
+
+## Example Error Handling (Python)
+
+```python
+if not resp.ok:
+    print(f"Failed to get upload URL: {resp.status_code} {resp.text}")
+    exit(1)
+# ... handle other errors similarly ...
+```
+
+---
+
+## FAQ
+
+- **How do I check the status of my batch job?**
+  - Use the web interface or poll the status API as shown above
+- **How are results delivered?**
+  - Downloadable `.jsonl` file after processing.
+- **What if my upload fails?**
+  - Check your API key, file size, and network connection. Review error messages for details.
+
+---
+
+For more details or support, visit the [Dria Batch Inference](https://dria.co/batch-inference) page.

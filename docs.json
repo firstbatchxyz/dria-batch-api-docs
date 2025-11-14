@@ -1,0 +1,72 @@
+{
+  "name": "Dria API Docs",
+  "title": "Dria API",
+  "description": "Documentation for Dria's open-source, crowdsourced API's.",
+  "favicon": "favicon.png",
+  "theme": "mint",
+  "colors": {
+    "primary": "#2B6CB0"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Introduction",
+        "icon": "book-open",
+        "pages": ["docs/intro"]
+      },
+      {
+        "group": "Batch Inference",
+        "icon": "box-isometric",
+        "expanded": true,
+        "pages": [
+          "docs/batch/overview",
+          "docs/batch/prepare-batch",
+          "docs/batch/upload",
+          "docs/batch/monitoring",
+          "docs/batch/limits",
+          "docs/batch/web-interface",
+          "docs/batch/troubleshooting",
+          {
+            "group": "API Reference",
+            "icon": "code",
+            "expanded": false,
+            "openapi": "https://mainnet.dkn.dria.co/api/v0/openapi.json",
+            "pages": [
+              "GET /api/v0/file/get_upload_url",
+              "POST /api/v0/batch/complete_upload",
+              "GET /api/v0/batch/all_jobs",
+              "GET /api/v0/batch/job"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Gepa",
+        "icon": "flask",
+        "pages": [
+          "docs/gepa/overview",
+          "docs/gepa/getting-started",
+          "docs/gepa/examples",
+          "docs/gepa/tutorials",
+          "docs/gepa/faq",
+          "docs/gepa/resources",
+          {
+            "group": "API Reference",
+            "icon": "code",
+            "expanded": false,
+            "openapi": "https://mainnet.dkn.dria.co/api/v0/openapi.json",
+            "pages": [
+              "POST /api/v0/gepa/start_execution",
+              "GET /api/v0/gepa/get_all_executions",
+              "GET /api/v0/gepa/get_single_execution/{evolutionId}",
+              "GET /api/v0/gepa/get_execution_prompts"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "text": "© 2024 Dria. All rights reserved."
+  }
+}

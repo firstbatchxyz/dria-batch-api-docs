@@ -1,0 +1,254 @@
+---
+title: Examples
+---
+
+## Example Payloads
+
+### Example 1: Math Tutoring
+
+```json
+{
+  "customId": "demo-arithmetic-001",
+  "strategy": "RPM",
+  "model": "gpt-4o",
+  "datasetColumns": ["question", "hint"],
+  "budget": 30,
+  "minibatchSize": 3,
+  "paretoSize": 4,
+  "evaluator": "{\"model\": \"gpt-4o-mini\", \"metric\": \"exact_match\", \"threshold\": 0.95, \"partialCredit\": true}",
+  "dataset": [
+    {
+      "input": {
+        "question": "What is 17 + 26?",
+        "hint": "Add tens first, then units."
+      },
+      "expectedOutput": "Answer: 43"
+    },
+    {
+      "input": {
+        "question": "Multiply 9 by 7.",
+        "hint": "Use repeated addition if needed."
+      },
+      "expectedOutput": "Answer: 63"
+    },
+    {
+      "input": {
+        "question": "What is 125 - 67?",
+        "hint": "Borrow carefully and explain."
+      },
+      "expectedOutput": "Answer: 58"
+    },
+    {
+      "input": {
+        "question": "What is 45 minus 18?",
+        "hint": "Break 45 into 40 + 5."
+      },
+      "expectedOutput": "Answer: 27"
+    },
+    {
+      "input": {
+        "question": "Solve 12 * 14 using mental math.",
+        "hint": "Split one factor into tens and ones."
+      },
+      "expectedOutput": "Answer: 168"
+    },
+    {
+      "input": {
+        "question": "Add 156 + 89.",
+        "hint": "Round 89 to 90 first."
+      },
+      "expectedOutput": "Answer: 245"
+    },
+    {
+      "input": {
+        "question": "Divide 144 by 12.",
+        "hint": "Think of 12 times table."
+      },
+      "expectedOutput": "Answer: 12"
+    }
+  ],
+  "prompt": "You are an encouraging math tutor. Walk the student through each step, narrate your reasoning, and end with `Answer: <value>`."
+}
+```
+
+### Example 2: Support Response
+
+```json
+{
+  "customId": "support-aurora-router",
+  "strategy": "RPM",
+  "model": "gpt-4o",
+  "datasetColumns": ["customer_name", "product", "issue_summary"],
+  "budget": 25,
+  "minibatchSize": 2,
+  "paretoSize": 2,
+  "evaluator": "{\"model\": \"gpt-4o-mini\", \"metric\": \"coherence\"}",
+  "dataset": [
+    {
+      "input": {
+        "customer_name": "Rory Chen",
+        "product": "Aurora Mesh Router",
+        "issue_summary": "intermittent drop-offs whenever video calls start"
+      },
+      "expectedOutput": "Hi Rory, I refreshed QoS and shared call-stability steps so video calls stay stable."
+    },
+    {
+      "input": {
+        "customer_name": "Priya Patel",
+        "product": "Aurora Mesh Router",
+        "issue_summary": "needs parental controls ready before weekend trip"
+      },
+      "expectedOutput": "Hi Priya, I set up device groups so you can enable parental controls in one tap before the trip."
+    },
+    {
+      "input": {
+        "customer_name": "Damian Wright",
+        "product": "Aurora Mesh Router",
+        "issue_summary": "wants one-sentence status summary"
+      },
+      "expectedOutput": "Damian, the mesh rollout finished a week early with redundant coverage verified."
+    },
+    {
+      "input": {
+        "customer_name": "Sam Lee",
+        "product": "Aurora Mesh Router",
+        "issue_summary": "roaming handoff assurance needed"
+      },
+      "expectedOutput": "Hi Sam, roaming profile is enabled and handoff latency is under 120 ms confirmed via live session trace."
+    }
+  ],
+  "prompt": "Write a concise, empathetic support reply for {customer_name} about their {product}. Highlight the fix for: {issue_summary}. Close with an offer to help further."
+}
+```
+
+---
+
+## Real-World Evolution Example
+
+Here's an actual GEPA execution showing how a prompt evolved from a simple instruction to a detailed, domain-aware template:
+
+**Initial Prompt (Generation 0)** - Score: 0.38
+
+```
+Write a concise, empathetic support reply for {customer_name} about their {product}.
+Highlight the fix for: {issue_summary}. Close with an offer to help further.
+```
+
+**Evolved Prompt (Generation 1)** - Score: 0.69 _(+82% improvement)_
+
+```
+Write a concise, empathetic support reply for {customer_name} regarding their {product}.
+The response should address the specific accomplishment or reassurance related to their
+issue, {issue_summary}, as follows:
+
+1. For status summary concerns, acknowledge the completion of a recent project,
+   emphasizing achievements such as the mesh rollout completion ahead of schedule
+   and verification of redundant coverage. This reflects a successful network
+   deployment, providing confidence in the network's reliability.
+
+2. For roaming handoff assurance, confirm technical specifics such as the roaming
+   profile being enabled and handoff latency being under 120 ms. Add credibility by
+   mentioning a live session trace to validate these assertions, offering the customer
+   reassurance about the seamless technology transition.
+
+Close the email with a personalized offer to provide further assistance if needed,
+maintaining a supportive and clear tone throughout the communication.
+
+Include sender details like your name, position, and company name for professionalism
+and context.
+```
+
+**Key Improvements Observed:**
+
+- Structured approach with numbered sections
+- Domain-specific knowledge extracted from dataset (QoS, mesh rollout, 120ms handoff latency)
+- Concrete examples for different scenario types
+- Professional formatting requirements
+- Technical credibility elements (live session traces)
+
+This demonstrates GEPA's reflective learning: the final prompt contains specific knowledge and patterns extracted from evaluating the dataset examples.
+
+---
+
+## Python Example
+
+```python
+import requests
+import time
+import json
+
+api_key = '<YOUR_API_KEY>'
+base_url = 'https://mainnet.dkn.dria.co/api/v0'
+
+# Step 1: Prepare payload
+payload = {
+    "customId": "my-prompt-evolution",
+    "strategy": "RPM",
+    "model": "gpt-4o",
+    "datasetColumns": ["customer_name", "product", "issue"],
+    "budget": 25,
+    "minibatchSize": 2,
+    "paretoSize": 2,
+    "evaluator": json.dumps({"model": "gpt-4o-mini", "metric": "coherence"}),
+    "dataset": [
+        {
+            "input": {"customer_name": "Alice", "product": "Router", "issue": "connection drops"},
+            "expectedOutput": "Hi Alice, I've reset your router settings..."
+        },
+        {
+            "input": {"customer_name": "Charlie", "product": "Router", "issue": "firmware update"},
+            "expectedOutput": "Hi Charlie, I've updated your router firmware..."
+        },
+        {
+            "input": {"customer_name": "Bob", "product": "Router", "issue": "slow speed"},
+            "expectedOutput": "Hi Bob, I've optimized your QoS settings..."
+        },
+        {
+            "input": {"customer_name": "Dana", "product": "Router", "issue": "WiFi range"},
+            "expectedOutput": "Hi Dana, I've adjusted your antenna settings..."
+        }
+    ],
+    "prompt": "Write a helpful support reply for {customer_name} about their {product}: {issue}"
+}
+
+# Step 2: Start execution
+resp = requests.post(f'{base_url}/gepa/start_execution',
+    headers={'x-api-key': api_key, 'Content-Type': 'application/json'},
+    json=payload)
+resp.raise_for_status()
+evolution_id = resp.json()['evolutionId']
+print(f'✅ Evolution started: {evolution_id}')
+
+# Wait for initialization
+time.sleep(5)
+
+# Step 3: Monitor progress
+while True:
+    status_resp = requests.get(f'{base_url}/gepa/get_single_execution/{evolution_id}',
+        headers={'x-api-key': api_key})
+    status_resp.raise_for_status()
+    data = status_resp.json()
+
+    if 'prompt' in data:
+        print(f"Status: {data['status']} | Gen: {data['prompt']['currentGeneration']} | Score: {data['prompt']['currentPromptScore']}")
+    else:
+        print(f"Status: {data['status']}")
+
+    if data['status'] in ['completed', 'failed']:
+        break
+    time.sleep(10)
+
+# Step 4: Get evolved prompts
+if data['status'] == 'completed':
+    prompts_resp = requests.get(f'{base_url}/gepa/get_execution_prompts',
+        params={'evolutionId': evolution_id, 'page': 1, 'limit': 20},
+        headers={'x-api-key': api_key})
+    prompts_resp.raise_for_status()
+
+    prompts = prompts_resp.json()['prompts']
+    print(f'\n✅ Evolution complete! {len(prompts)} generations')
+    for p in prompts:
+        print(f"\nGen {p['generation']} (score: {p['score']}):\n{p['prompt'][:200]}...")
+else:
+    print('❌ Evolution failed')
+```
