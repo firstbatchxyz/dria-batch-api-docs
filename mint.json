@@ -1,7 +1,7 @@
 {
-  "name": "Dria Batch API Docs",
-  "title": "Dria Batch Inference API",
-  "description": "Documentation for Dria's open-source, crowdsourced batch AI inference API.",
+  "name": "Dria API Docs",
+  "title": "Dria API",
+  "description": "Documentation for Dria's open-source, crowdsourced API's.",
   "icon": "📦",
   "favicon": "favicon.png",
   "theme": "venus",
@@ -11,17 +11,14 @@
   "navigation": [
     {
       "group": "Guide",
-      "pages": [
-        "index",
-        "gepa"
-      ]
+      "pages": ["index", "batch", "gepa"]
     }
   ],
   "sidebar": {
     "Guides": [
       {
         "label": "Batch Inference Guide",
-        "file": "index"
+        "file": "batch"
       },
       {
         "label": "GEPA Prompt Optimization",
@@ -32,4 +29,4 @@
   "footer": {
     "text": "© 2024 Dria. All rights reserved."
   }
-} 
+}

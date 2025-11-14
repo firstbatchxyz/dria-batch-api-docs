@@ -1,155 +1,50 @@
 ---
-title: Dria Batch Inference API
+title: Welcome to Dria
 ---
 
+## Platform overview
 
-## Overview
+Dria is a crowdsourced AI network that bundles high-throughput inference and automated prompt evolution behind one API surface. Builders get a single, OpenAPI-defined contract for both the Batch Inference product and the GEPA Prompt Evolution service.
 
-Dria’s Batch Inference API is an open-source, crowdsourced batch AI inference API which is optimized for massive AI workloads. It’s ideal for:
-- Processing large amounts of data
-- Optimizing inference costs
-- Large-scale offline evaluations
-- Experimenting with offline workflows
+## One OpenAPI spec for everything
 
-**Key benefits:**
-- **Offers the cheapest inference for big jobs**
-- **Has high throughput**
-- **Offers asynchronous processing**
+Mintlify’s API playground reads directly from the Dria spec at <https://mainnet.dkn.dria.co/api/v0/doc>. It is an OpenAPI 3.0 document with the proper `servers` entry and the `ApiKeyAuth` security scheme (`x-api-key` header), so you can drop the URL into `mint.json` without any preprocessing.
 
----
+| Namespace | Base path | Purpose |
+| --- | --- | --- |
+| Batch jobs | `/batch/*` | Create, list, and inspect inference jobs. |
+| GEPA | `/gepa/*` | Start and monitor prompt evolution executions. |
+| File helper | `/file/*` | Generate pre-signed URLs for `.jsonl` uploads. |
 
-## Getting Started
+All read/write traffic shares the same server: `https://mainnet.dkn.dria.co/api/v0`. POST operations require the `x-api-key` header; Mintlify will surface the field automatically when the spec is linked.
 
-### 1. Prepare Your Batch File
+## Product highlights
 
-Create a `.jsonl` file where each line is a JSON object representing a single request. Each request must include a unique `custom_id` (UUID recommended), a `type`, a `version`, and a `body` with the model and input parameters. 
+### Batch Inference
 
-Example:
+The [Batch guide](batch) explains how to structure `.jsonl` payloads, upload them through `/file/get_upload_url`, and finalize the job with `/batch/complete_upload`. Use it whenever you need the cheapest, highest-throughput way to score tens of thousands of prompts asynchronously.
 
-```jsonl
-{"custom_id": "7278c795-19fb-48cc-b9bd-7961904d1a8c", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Problem description..."}]}}
-{"custom_id": "fec80e3d-a1d4-445c-860e-87aa1fab4281", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Another prompt..."}]}}
-```
+### GEPA Prompt Evolution
 
-- **custom_id**: Unique identifier for each request (UUID required)
-- **type**: Task type (e.g., "completions")
-- **version**: API version (e.g., "v1")
-- **body**: Model and input parameters (see supported models below)
+The [GEPA guide](gepa) covers the `/gepa/start_execution` flow, polling endpoints, and how to interpret prompt evolution histories. Use GEPA to iterate toward the best-performing instructions without touching the underlying model weights.
 
----
+### Combined workflow
 
-### 2. Upload Your Batch File (Python Example)
+GEPA can tune prompts that later run at scale via Batch jobs. Because the spec is unified, you can reuse the same SDK or Mintlify-generated API Playground to move between both workflows.
 
-Dria utilizes a two-step upload process:
-1. Acquire a pre-signed URL for the upload.
-2. Upload your file to the provided URL.
-3. Complete the upload to begin processing.
+## Using the OpenAPI spec in Mintlify
 
-```python
-import requests
-import os
+1. In `mint.json`, add an `openapi` field (e.g., on an “API Reference” group) that points to `https://mainnet.dkn.dria.co/api/v0/doc`.
+2. Reference endpoints directly in navigation entries such as `POST /batch/complete_upload` or `POST /gepa/start_execution` to generate live API pages.
+3. Use MDX frontmatter (`openapi: "POST /batch/complete_upload"`) when you need to add narrative context alongside the generated parameters/responses.
+4. Customize operation titles or descriptions with the `x-mint.metadata` extension inside the OpenAPI file if you need more human-friendly names.
 
-file_path = 'your_batch_file.jsonl'
-api_key = '<YOUR_API_KEY>'
-base_url = 'https://mainnet.dkn.dria.co/api/v0'
+Following [Mintlify’s OpenAPI setup guide](https://www.mintlify.com/docs/api-playground/openapi-setup) ensures the playground stays in sync with the Dria backend as new endpoints ship.
 
-# Step 1: Get upload URL
-resp = requests.get(f'{base_url}/file/get_upload_url', headers={'x-api-key': api_key})
-resp.raise_for_status()
-data = resp.json()
-url, file_id = data['url'], data['id']
+## Quick start
 
-# Step 2: Upload file to S3
-with open(file_path, 'rb') as f:
-    upload_resp = requests.put(url, data=f, headers={
-        'Content-Type': 'binary/octet-stream',
-        'Content-Length': str(os.path.getsize(file_path)),
-    })
-    upload_resp.raise_for_status()
-
-# Step 3: Complete the upload
-complete_resp = requests.post(f'{base_url}/batch/complete_upload',
-    headers={'Content-Type': 'application/json', 'x-api-key': api_key},
-    json={'id': file_id})
-complete_resp.raise_for_status()
-print('✅ Upload completed successfully:', complete_resp.json())
-```
-
----
-
-### 3. Monitor and Retrieve Results
-
-After the upload has been completed, your batch job will be processed asynchronously.Immediately following this you may:
-- Use the [web interface](https://dria.co/batch-inference) to upload, check of, and download any subsequent results.
-
----
-
-## Example Output File
-
-Each line in the output `.jsonl` file corresponds to a request, including the model, result, and token usage. 
-
-Example:
-
-```jsonl
-{"model": "gemma3:12b", "result": "...response text...", "token_count": 2333}
-{"model": "gemma3:12b", "result": "...response text...", "token_count": 2319}
-```
-
-- Use `custom_id` to match input and output lines.
-- Failed requests will include error information.
-
----
-
-## Limits and Plans
-
-- **Tasks per file:** Up to 100,000
-- **Free plan:** 3 files per day
-- **Developer plan:** 10 files per day
-- Enterprise: Custom Limits ( Reach out to “inference@dria.co“ )
-
----
-
-## Supported Models
-
-Dria Batch API supports a wide range of models, including:
-- Gemma3 4b, 12b, 27b
-- Llama 3.3 70B Instruct, 3.1 8B Instruct, 3.2 1B Instruct
-- Mistral Nemo
-
-See the [Dria Batch Inference page](https://dria.co/batch-inference) for the latest list.
-
----
-
-## Web Interface
-
-You can use the [Dria Batch Inference Web Interface](https://dria.co/batch-inference) to:
-- Upload `.jsonl` files
-- Check batch status
-- Download results
-- Obtain your API key
-
----
-
-## Example Error Handling (Python)
-
-```python
-if not resp.ok:
-    print(f"Failed to get upload URL: {resp.status_code} {resp.text}")
-    exit(1)
-# ... handle other errors similarly ...
-```
-
----
-
-## FAQ
-
-- **How do I check the status of my batch job?**
-  - Use the web interface or poll the status API as shown above
-- **How are results delivered?**
-  - Downloadable `.jsonl` file after processing.
-- **What if my upload fails?**
-  - Check your API key, file size, and network connection. Review error messages for details.
-
----
-
-For more details or support, visit the [Dria Batch Inference](https://dria.co/batch-inference) page. 
+1. Create or retrieve an API key from the Dria dashboard.
+2. Decide whether you are running a batch job or a GEPA evolution.
+3. Point your client (or Mintlify API Playground) at `https://mainnet.dkn.dria.co/api/v0`.
+4. Use the spec to copy the exact request bodies, required headers, and response schemas.
+5. Dive into the product-specific guides linked above for step-by-step walkthroughs.

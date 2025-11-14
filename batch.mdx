@@ -1,0 +1,160 @@
+---
+title: Dria Batch Inference API
+---
+
+## Overview
+
+Dria’s Batch Inference API is an open-source, crowdsourced batch AI inference API which is optimized for massive AI workloads. It’s ideal for:
+
+- Processing large amounts of data
+- Optimizing inference costs
+- Large-scale offline evaluations
+- Experimenting with offline workflows
+
+**Key benefits:**
+
+- **Offers the cheapest inference for big jobs**
+- **Has high throughput**
+- **Offers asynchronous processing**
+
+---
+
+## Getting Started
+
+### 1. Prepare Your Batch File
+
+Create a `.jsonl` file where each line is a JSON object representing a single request. Each request must include a unique `custom_id` (UUID recommended), a `type`, a `version`, and a `body` with the model and input parameters.
+
+Example:
+
+```jsonl
+{"custom_id": "7278c795-19fb-48cc-b9bd-7961904d1a8c", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Problem description..."}]}}
+{"custom_id": "fec80e3d-a1d4-445c-860e-87aa1fab4281", "type": "completions", "version": "v1", "body": {"model": "gemma3:12b", "max_tokens": 1024, "messages": [{"role": "user", "content": "Another prompt..."}]}}
+```
+
+- **custom_id**: Unique identifier for each request (UUID required)
+- **type**: Task type (e.g., "completions")
+- **version**: API version (e.g., "v1")
+- **body**: Model and input parameters (see supported models below)
+
+---
+
+### 2. Upload Your Batch File (Python Example)
+
+Dria utilizes a two-step upload process:
+
+1. Acquire a pre-signed URL for the upload.
+2. Upload your file to the provided URL.
+3. Complete the upload to begin processing.
+
+```python
+import requests
+import os
+
+file_path = 'your_batch_file.jsonl'
+api_key = '<YOUR_API_KEY>'
+base_url = 'https://mainnet.dkn.dria.co/api/v0'
+
+# Step 1: Get upload URL
+resp = requests.get(f'{base_url}/file/get_upload_url', headers={'x-api-key': api_key})
+resp.raise_for_status()
+data = resp.json()
+url, file_id = data['url'], data['id']
+
+# Step 2: Upload file to S3
+with open(file_path, 'rb') as f:
+    upload_resp = requests.put(url, data=f, headers={
+        'Content-Type': 'binary/octet-stream',
+        'Content-Length': str(os.path.getsize(file_path)),
+    })
+    upload_resp.raise_for_status()
+
+# Step 3: Complete the upload
+complete_resp = requests.post(f'{base_url}/batch/complete_upload',
+    headers={'Content-Type': 'application/json', 'x-api-key': api_key},
+    json={'id': file_id})
+complete_resp.raise_for_status()
+print('✅ Upload completed successfully:', complete_resp.json())
+```
+
+---
+
+### 3. Monitor and Retrieve Results
+
+After the upload has been completed, your batch job will be processed asynchronously.Immediately following this you may:
+
+- Use the [web interface](https://dria.co/batch-inference) to upload, check of, and download any subsequent results.
+
+---
+
+## Example Output File
+
+Each line in the output `.jsonl` file corresponds to a request, including the model, result, and token usage.
+
+Example:
+
+```jsonl
+{"model": "gemma3:12b", "result": "...response text...", "token_count": 2333}
+{"model": "gemma3:12b", "result": "...response text...", "token_count": 2319}
+```
+
+- Use `custom_id` to match input and output lines.
+- Failed requests will include error information.
+
+---
+
+## Limits and Plans
+
+- **Tasks per file:** Up to 100,000
+- **Free plan:** 3 files per day
+- **Developer plan:** 10 files per day
+- Enterprise: Custom Limits ( Reach out to “inference@dria.co“ )
+
+---
+
+## Supported Models
+
+Dria Batch API supports a wide range of models, including:
+
+- Gemma3 4b, 12b, 27b
+- Llama 3.3 70B Instruct, 3.1 8B Instruct, 3.2 1B Instruct
+- Mistral Nemo
+
+See the [Dria Batch Inference page](https://dria.co/batch-inference) for the latest list.
+
+---
+
+## Web Interface
+
+You can use the [Dria Batch Inference Web Interface](https://dria.co/batch-inference) to:
+
+- Upload `.jsonl` files
+- Check batch status
+- Download results
+- Obtain your API key
+
+---
+
+## Example Error Handling (Python)
+
+```python
+if not resp.ok:
+    print(f"Failed to get upload URL: {resp.status_code} {resp.text}")
+    exit(1)
+# ... handle other errors similarly ...
+```
+
+---
+
+## FAQ
+
+- **How do I check the status of my batch job?**
+  - Use the web interface or poll the status API as shown above
+- **How are results delivered?**
+  - Downloadable `.jsonl` file after processing.
+- **What if my upload fails?**
+  - Check your API key, file size, and network connection. Review error messages for details.
+
+---
+
+For more details or support, visit the [Dria Batch Inference](https://dria.co/batch-inference) page.
