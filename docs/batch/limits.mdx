@@ -2,21 +2,30 @@
 title: Batch Limits & Models
 ---
 
-## Limits and Plans
+## Quotas
 
-- **Tasks per file:** Up to 100,000
-- **Free plan:** 3 files per day
-- **Developer plan:** 10 files per day
-- Enterprise: Custom Limits ( Reach out to “inference@dria.co“ )
+| Plan       | Files / day | Tasks / file | Notes                                           |
+| ---------- | ----------- | ------------ | ----------------------------------------------- |
+| Free       | 3           | 100,000      | Shared worker pool, best-effort scheduling      |
+| Developer  | 10          | 100,000      | Priority placement and faster retries           |
+| Enterprise | Custom      | Custom       | Contact inference@dria.co for reserved capacity |
 
----
+All plans share the same `.jsonl` schema. When you need to exceed any limit temporarily, reach out to the team at least 24 hours before launch.
+
+## Operational Limits
+
+- **File size**: keep uploads under 512 MB to avoid multi-part PUTs (split jobs if needed).
+- **Max tokens**: honor the per-model limits published on the [Batch Inference page](https://dria.co/batch-inference).
+- **Concurrent jobs**: batching works best with 5 active uploads per key. Additional jobs wait in `queued`.
+- **Retention**: result files stay available for 7 days; download to your own storage for long-term archives.
+- **Retries**: the platform retries transient failures 3 times. Hard failures (validation, rate limits) remain in the output file for manual review.
 
 ## Supported Models
 
-Dria Batch API supports a wide range of models, including:
+Model availability changes frequently. As of this release you can target:
 
-- Gemma3 4b, 12b, 27b
+- Gemma 3: 4B, 12B, 27B
 - Llama 3.3 70B Instruct, 3.1 8B Instruct, 3.2 1B Instruct
 - Mistral Nemo
 
-See the [Dria Batch Inference page](https://dria.co/batch-inference) for the latest list.
+Check the [Batch Inference page](https://dria.co/batch-inference) or the **Batch API Reference** for the live `model` list before kicking off large batches.

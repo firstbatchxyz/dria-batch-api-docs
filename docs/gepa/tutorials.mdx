@@ -86,6 +86,8 @@ Example payload:
 }
 ```
 
+Add the remaining dataset rows so that the total matches `minibatchSize + paretoSize` (8 rows in this example).
+
 **Workflow:**
 
 1. Submit the payload using the Python example above
@@ -186,3 +188,58 @@ Example payload:
 4. Once completed, compare initial vs evolved prompt for security pattern recognition
 
 **Real Results:** Initial prompt (score 0.14) → Final prompt (score 0.314) with structured security review covering CORS validation, SQL injection detection, and path traversal prevention
+
+### Tutorial 3: Knowledge Base Summaries
+
+**Goal:** Evolve a prompt that produces crisp summaries from internal wiki notes for on-call engineers.
+
+**Strategy:** RPM with a recall-oriented evaluator.
+
+**Key Configuration:**
+
+- `datasetColumns`: `["title", "notes"]`
+- `evaluator`: `{"model": "gpt-4o-mini", "metric": "recall", "threshold": 0.9}` to ensure key facts are preserved.
+- Dataset: 4 feedback + 4 pareto rows pulled from actual incidents.
+- Budget: 20 generations to balance cost and variety.
+
+**Expected Results:** Final prompt mandated 4-sentence structure (symptom, impact, fix, follow-up) and reached 0.91 recall.
+
+Example payload sketch:
+
+```json
+{
+  "customId": "kb-summary-run-004",
+  "strategy": "RPM",
+  "model": "gpt-4o",
+  "datasetColumns": ["title", "notes"],
+  "budget": 20,
+  "minibatchSize": 4,
+  "paretoSize": 4,
+  "evaluator": "{\"model\": \"gpt-4o-mini\", \"metric\": \"recall\", \"threshold\": 0.9}",
+  "dataset": [
+    {
+      "input": {
+        "title": "2024-09-14 API Latency",
+        "notes": "Cause: hot partition on shard-3..."
+      },
+      "expectedOutput": "Summaries mention hot partition and mitigation steps."
+    },
+    {
+      "input": {
+        "title": "2024-10-02 Search Incident",
+        "notes": "Cause: expired TLS cert on crawler..."
+      },
+      "expectedOutput": "Summaries include expired cert, rotated keys, timeline."
+    }
+  ],
+  "prompt": "Summarize \"{title}\" for the on-call handoff. Mention primary symptom, customer impact, remediation, and next checks using notes:\n{notes}"
+}
+```
+
+**Workflow:**
+
+1. Normalize the `notes` text (strip Markdown, shorten bullet noise).
+2. Start execution and monitor until the evaluator score plateaus (around gen 12 in this run).
+3. Fetch top generations and pin the prompt whose recall stays >0.9 on the pareto set.
+
+This tutorial is ideal for any summarization or synthesis workload where coverage matters more than creativity.

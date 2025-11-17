@@ -2,40 +2,38 @@
 title: FAQ
 ---
 
-**How long does evolution take?**
+### How long does an execution take?
 
-- Depends on budget and model. With `budget=30` and `gpt-4o`, expect 5-15 minutes.
+Depends on the `budget`, model latency, and dataset size. A typical `budget=30` run on `gpt-4o` finishes in 5-15 minutes. Smaller budgets finish faster but may converge to lower scores.
 
-**What's the minimum dataset size?**
+### What is the minimum dataset size?
 
-- Dataset size must equal `minibatchSize + paretoSize`. Minimum recommended is 4 items (2 feedback + 2 pareto).
+`len(dataset) = minibatchSize + paretoSize`. The minimum that makes sense is 4 rows (2 feedback + 2 pareto), but most users see better results with 6-8 rows. Order matters: feedback rows must appear first.
 
-**Can I stop an execution?**
+### Can I cancel an execution?
 
-- Executions run until completion or budget exhaustion. Monitor via `get_single_execution`.
+Executions run until they hit the budget or encounter a fatal error. Monitor via `GET /gepa/get_single_execution/{evolutionId}` and simply ignore the run if you start a replacement. Official cancellation is on the roadmap.
 
-**What if my execution fails?**
+### Why did my execution fail?
 
-- Common issues:
-  - Dataset size doesn't match `minibatchSize + paretoSize`
-  - Using models that are not supported
-  - Missing `model` field in evaluator JSON
-  - Invalid evaluator JSON format
-  - Missing `input` or `expectedOutput` in dataset items
-  - `expectedOutput` is empty string
+Common causes:
 
-**What models are supported?**
+- Dataset size mismatch
+- Unsupported `model`
+- Evaluator JSON missing the `model` field or improperly escaped
+- Missing `input`/`expectedOutput` keys
+- `expectedOutput` is an empty string
 
-- `gpt-5-mini` - Latest GPT-5 Mini
-- `gpt-5` - Latest GPT-5
-- `gpt-4.1` - GPT-4.1
-- `gpt-4o` - GPT-4o
-- `gpt-4o-mini` - GPT-4o Mini
+Check the error message returned by `get_single_execution` and compare your payload with the examples in this section or the **GEPA API Reference**.
 
-**What strategy should I use?**
+### Which models can I target?
 
-- Currently only `RPM` (Reflective Prompt Mutation) is available. RPM works well for most use cases including pedagogical prompts, support responses, and code review templates.
+See [Resources](docs/gepa/resources) for the live list. All payloads must reference models from that list for both `model` and `evaluator`.
 
-**Do I need to provide a model in the evaluator?**
+### Which strategy should I choose?
 
-- Yes, the evaluator JSON must include a `model` field (e.g., `"model": "gpt-4o-mini"`)
+Currently `RPM` (Reflective Prompt Mutation) is the supported strategy and works for instruction-following, evaluations, and summarization scenarios. Additional strategies will appear as separate enum values in the API reference.
+
+### Do I really need a model in the evaluator?
+
+Yes. The evaluator runs real model calls to automatically score generations. Provide a separate `model` (usually a lighter one like `gpt-4o-mini`) plus metric configuration.

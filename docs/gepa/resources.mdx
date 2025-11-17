@@ -4,18 +4,27 @@ title: Resources
 
 ## Supported Models
 
-GEPA supports the following models:
+GEPA can target any of the following generation models:
 
-- **gpt-5-mini-2025-08-07** - Latest GPT-5 Mini (fast and cost-effective)
-- **gpt-5-2025-08-07** - Latest GPT-5 (highest quality)
-- **gpt-4.1-2025-04-14** - GPT-4.1
-- **gpt-4o-2024-08-06** - GPT-4o
-- **gpt-4o-mini-2024-07-18** - GPT-4o Mini (balanced performance and cost)
+- `gpt-5-2025-08-07` and `gpt-5-mini-2025-08-07`
+- `gpt-4.1-2025-04-14`
+- `gpt-4o-2024-08-06`
+- `gpt-4o-mini-2024-07-18`
 
----
+Evaluator payloads can use the same set or a cheaper variant (for example, run generations on `gpt-4o` but evaluate with `gpt-4o-mini`).
 
-## Additional Resources
+## Evaluator Cheatsheet
 
-- [GEPA Research Paper](https://arxiv.org/pdf/2507.19457) - Original technique by Agrawal et al.
-- [Dria Batch Inference](https://dria.co/batch-inference) - Model availability and pricing
-- **Support:** For questions or issues, mail inference@dria.co (include `customId` and `evolutionId` for faster assistance)
+| Metric | When to use | Notes |
+| --- | --- | --- |
+| `exact_match` | Deterministic answers (math, structured outputs) | Add `partialCredit` for near matches. |
+| `coherence` | Narrative or explanatory responses | Pair with a higher `threshold` to avoid verbose fluff. |
+| `recall` | Summaries that must include specific facts | Great for knowledge-base distillation. |
+
+Remember to encode the evaluator JSON as a string in the payload (see [Getting Started](docs/gepa/getting-started)).
+
+## Further Reading
+
+- [GEPA Research Paper](https://arxiv.org/pdf/2507.19457) for the underlying Genetic-Pareto approach.
+- [Dria Batch Inference](https://dria.co/batch-inference) when you need to evaluate evolved prompts over massive datasets.
+- **Support:** inference@dria.co — include your `customId` and `evolutionId` to speed up investigations.
