@@ -13,7 +13,7 @@ Use the examples below to understand GEPA on three common workloads. Each tutori
 **Key Configuration:**
 
 - `datasetColumns`: `["problem", "hint"]` - Two-column format for question and teaching hint
-- `evaluator`: `{"model": "gpt-4o-mini", "metric": "exact_match", "threshold": 0.95, "partialCredit": true}` - Rewards both exact matches and near misses
+- `evaluator`: `{"model": "gpt-4o-mini"}` - Only the `model` field is used; other evaluator keys are ignored
 - Dataset: 3 feedback items + 4 pareto items = 7 total (matching minibatchSize + paretoSize)
 - Budget: 30 generations for thorough exploration
 
@@ -30,7 +30,7 @@ Example payload:
   "budget": 30,
   "minibatchSize": 3,
   "paretoSize": 4,
-  "evaluator": "{\"model\": \"gpt-4o-mini\", \"metric\": \"exact_match\", \"threshold\": 0.95, \"partialCredit\": true}",
+  "evaluator": "{\"model\": \"gpt-4o-mini\"}",
   "dataset": [
     {
       "input": {
@@ -105,7 +105,7 @@ Example payload:
 **Key Configuration:**
 
 - `datasetColumns`: `["diff", "toolFindings"]` - Code diff and static analysis output
-- `evaluator`: `{"model": "gpt-4o-mini", "metric": "exact_match", "threshold": 0.8}` - Lower threshold for complex security analysis
+- `evaluator`: `{"model": "gpt-4o-mini"}` - Only the `model` field is used; other evaluator keys are ignored
 - Dataset: 3 feedback items + 4 pareto items = 7 total (matching minibatchSize + paretoSize)
 - Budget: 40 generations for comprehensive security pattern learning
 
@@ -122,7 +122,7 @@ Example payload:
   "budget": 40,
   "minibatchSize": 3,
   "paretoSize": 4,
-  "evaluator": "{\"model\": \"gpt-4o-mini\", \"metric\": \"exact_match\", \"threshold\": 0.8}",
+  "evaluator": "{\"model\": \"gpt-4o-mini\"}",
   "dataset": [
     {
       "input": {
