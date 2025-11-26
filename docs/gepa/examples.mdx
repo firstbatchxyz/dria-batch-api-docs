@@ -4,6 +4,8 @@ title: Examples
 
 ## Example Payloads
 
+Only the `model` field in `evaluator` is used today; any other evaluator keys are ignored.
+
 ### Example 1: Math Tutoring
 
 ```json
@@ -82,7 +84,7 @@ title: Examples
   "budget": 25,
   "minibatchSize": 2,
   "paretoSize": 2,
-  "evaluator": "{\"model\": \"gpt-4o-mini\", \"metric\": \"coherence\"}",
+  "evaluator": "{\"model\": \"gpt-4o-mini\"}",
   "dataset": [
     {
       "input": {
@@ -189,7 +191,7 @@ payload = {
     "budget": 25,
     "minibatchSize": 2,
     "paretoSize": 2,
-    "evaluator": json.dumps({"model": "gpt-4o-mini", "metric": "coherence"}),
+    "evaluator": json.dumps({"model": "gpt-4o-mini"}),
     "dataset": [
         {
             "input": {"customer_name": "Alice", "product": "Router", "issue": "connection drops"},
