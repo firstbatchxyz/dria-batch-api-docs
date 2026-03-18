@@ -1,0 +1,54 @@
+---
+title: "Models"
+description: "List available models on the Dria network."
+---
+
+# Models
+
+```
+GET /v1/models
+```
+
+List all models currently available on the network.
+
+## Request
+
+```bash
+curl https://inference.dria.co/v1/models \
+  -H "Authorization: Bearer dkn_live_..."
+```
+
+## Response
+
+```json
+{
+  "data": [
+    {
+      "id": "qwen3.5:9b",
+      "object": "model",
+      "created": 1710000000,
+      "owned_by": "dria",
+      "node_count": 12
+    },
+    {
+      "id": "qwen2.5-vl:7b",
+      "object": "model",
+      "created": 1710000000,
+      "owned_by": "dria",
+      "node_count": 5
+    }
+  ]
+}
+```
+
+### Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Model identifier (use this in requests) |
+| `object` | string | Always `"model"` |
+| `created` | integer | Unix timestamp |
+| `owned_by` | string | Provider |
+| `node_count` | integer | Number of nodes currently serving this model |
+
+The `node_count` field indicates how many nodes are available for a given model. Higher counts mean better availability and throughput.

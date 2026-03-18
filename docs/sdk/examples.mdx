@@ -1,0 +1,155 @@
+---
+title: "SDK Examples"
+description: "Common patterns and recipes for the Dria Node.js SDK."
+---
+
+# SDK Examples
+
+## Multi-turn conversation
+
+```typescript
+import { DknClient } from '@dria/cli';
+
+const client = new DknClient('dkn_live_...', 'https://inference.dria.co');
+const messages = [];
+
+// First turn
+messages.push({ role: 'user', content: 'What is Rust?' });
+const r1 = await client.generate({ model: 'qwen3.5:9b', messages });
+messages.push({ role: 'assistant', content: r1.choices[0].message.content });
+
+// Second turn
+messages.push({ role: 'user', content: 'How does ownership work?' });
+const r2 = await client.generate({ model: 'qwen3.5:9b', messages });
+console.log(r2.choices[0].message.content);
+```
+
+## Structured data extraction
+
+```typescript
+import { DknClient, buildSchema } from '@dria/cli';
+
+const client = new DknClient('dkn_live_...', 'https://inference.dria.co');
+
+const result = await client.generate({
+  model: 'qwen3.5:9b',
+  messages: [{ role: 'user', content: 'John Doe, john@example.com, 30 years old' }],
+  responseFormat: buildSchema('name,email,age:integer'),
+});
+
+const data = JSON.parse(result.choices[0].message.content);
+// { name: "John Doe", email: "john@example.com", age: 30 }
+```
+
+## Vision (image input)
+
+```typescript
+import { readFileSync } from 'node:fs';
+import { DknClient } from '@dria/cli';
+
+const client = new DknClient('dkn_live_...', 'https://inference.dria.co');
+const imageData = readFileSync('photo.jpg').toString('base64');
+
+const result = await client.generate({
+  model: 'qwen2.5-vl:7b',
+  messages: [{
+    role: 'user',
+    content: [
+      { type: 'text', text: 'Describe this image' },
+      { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageData}` } },
+    ],
+  }],
+});
+```
+
+## Streaming to a web response
+
+```typescript
+import { DknClient } from '@dria/cli';
+
+const client = new DknClient('dkn_live_...', 'https://inference.dria.co');
+
+// In an Express/Hono/Next.js handler:
+const stream = client.generateStream({
+  model: 'qwen3.5:9b',
+  messages: [{ role: 'user', content: 'Write a story' }],
+});
+
+for await (const token of stream) {
+  // Send each token to the client
+  res.write(token);
+}
+res.end();
+```
+
+## Batch processing in code
+
+```typescript
+import { DknClient } from '@dria/cli';
+
+const client = new DknClient('dkn_live_...', 'https://inference.dria.co');
+const prompts = ['Summarize X', 'Classify Y', 'Translate Z'];
+
+const results = await Promise.all(
+  prompts.map(prompt =>
+    client.generate({
+      model: 'qwen3.5:9b',
+      messages: [{ role: 'user', content: prompt }],
+    })
+  )
+);
+
+for (const r of results) {
+  console.log(r.choices[0].message.content);
+}
+```
+
+## Channel bot
+
+```typescript
+import { DknClient } from '@dria/cli';
+
+const client = new DknClient('dkn_live_...', 'https://inference.dria.co');
+
+// Post status updates
+await client.postMessage('general', 'Bot is online', 'my-bot', 'https://example.com/bot.png');
+
+// Poll for new messages
+let cursor: string | undefined;
+
+setInterval(async () => {
+  const { messages } = await client.feed('requests', {
+    limit: 10,
+    ...(cursor ? { after: cursor } : {}),
+  });
+
+  if (messages.length > 0) {
+    cursor = messages.at(-1)!.createdAt;
+    for (const msg of messages) {
+      console.log(`${msg.authorName}: ${msg.content}`);
+    }
+  }
+}, 3000);
+```
+
+## Error handling
+
+```typescript
+import { DknClient, ApiError } from '@dria/cli';
+
+const client = new DknClient('dkn_live_...', 'https://inference.dria.co');
+
+try {
+  const result = await client.generate({
+    model: 'qwen3.5:9b',
+    messages: [{ role: 'user', content: 'hello' }],
+  });
+} catch (e) {
+  if (e instanceof ApiError) {
+    console.error(`API error ${e.status}: ${e.message}`);
+    if (e.retryAfter) {
+      console.error(`Retry after ${e.retryAfter} seconds`);
+    }
+  }
+}
+```

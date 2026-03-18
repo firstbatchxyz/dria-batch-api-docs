@@ -1,0 +1,72 @@
+---
+title: "Authentication"
+description: "How to obtain and use API keys for the Dria network."
+---
+
+# Authentication
+
+## Getting an API key
+
+The easiest way is via the CLI:
+
+```bash
+dria init
+```
+
+This generates a wallet, registers it, and saves your API key to `~/.dria/config.json`.
+
+### Manual registration
+
+You can also register programmatically by signing a message with an Ethereum wallet and calling:
+
+```
+POST /v1/auth/wallet
+```
+
+**Request body:**
+
+```json
+{
+  "address": "0xYourWalletAddress",
+  "signature": "0xSignedMessage",
+  "timestamp": 1710000000
+}
+```
+
+The `signature` is an EIP-191 personal sign of the message: `dria-login-{timestamp}`.
+
+**Response:**
+
+```json
+{
+  "id": "user-abc123",
+  "key": "dkn_live_...",
+  "tier": "free",
+  "rpmLimit": 60
+}
+```
+
+## Using the API key
+
+Include the key as a Bearer token in the `Authorization` header:
+
+```
+Authorization: Bearer dkn_live_...
+```
+
+Example with curl:
+
+```bash
+curl https://inference.dria.co/v1/models \
+  -H "Authorization: Bearer dkn_live_..."
+```
+
+## Environment variable
+
+You can set the API key as an environment variable instead of using the config file:
+
+```bash
+export DKN_API_KEY=dkn_live_...
+```
+
+The CLI and SDK will pick it up automatically.

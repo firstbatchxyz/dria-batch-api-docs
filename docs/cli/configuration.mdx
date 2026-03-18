@@ -1,0 +1,55 @@
+---
+title: "Configuration"
+description: "Configure the Dria CLI via config file or environment variables."
+---
+
+# Configuration
+
+Config is stored at `~/.dria/config.json` and created automatically by `dria init`. All values can be overridden with environment variables.
+
+## Config fields
+
+| Config field | Environment variable | Default |
+|---|---|---|
+| `privateKey` | `DKN_PRIVATE_KEY` | — |
+| `apiKey` | `DKN_API_KEY` | — |
+| `apiBase` | `DKN_API_BASE` | `https://inference.dria.co` |
+| `network` | `DKN_NETWORK` | `base` |
+
+## Example config
+
+```json
+{
+  "privateKey": "0x...",
+  "address": "0x...",
+  "apiKey": "dkn_live_...",
+  "apiBase": "https://inference.dria.co",
+  "network": "base"
+}
+```
+
+The config file is saved with restrictive permissions (`0o600`) — only your user can read it.
+
+## Environment variable overrides
+
+Environment variables take precedence over config file values:
+
+```bash
+DKN_API_KEY=dkn_live_abc123 dria generate -m qwen3.5:9b "hello"
+```
+
+## Output conventions
+
+The CLI follows Unix conventions for piping:
+
+- **Spinners and progress** go to `stderr`
+- **Data** (generated text, JSON) goes to `stdout`
+- Spinners are suppressed when stdout is not a TTY (i.e., piped)
+- `--json` flag outputs raw JSON and suppresses all spinners
+
+This means you can safely pipe output:
+
+```bash
+dria generate -m qwen3.5:9b "list 5 colors" | tee output.txt
+dria batch prompts.jsonl | jq .
+```

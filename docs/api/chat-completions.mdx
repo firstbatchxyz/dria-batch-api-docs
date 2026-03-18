@@ -1,0 +1,140 @@
+---
+title: "Chat Completions"
+description: "Generate text using the OpenAI-compatible chat completions endpoint."
+---
+
+# Chat Completions
+
+```
+POST /v1/chat/completions
+```
+
+Generate text from a conversation. Supports streaming, vision, and structured output.
+
+## Request
+
+```bash
+curl https://inference.dria.co/v1/chat/completions \
+  -H "Authorization: Bearer dkn_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen3.5:9b",
+    "messages": [
+      {"role": "user", "content": "explain quantum computing in one sentence"}
+    ]
+  }'
+```
+
+### Parameters
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `model` | string | yes | Model ID (e.g., `qwen3.5:9b`) |
+| `messages` | array | yes | Conversation messages |
+| `max_tokens` | integer | no | Max tokens to generate (default: `2048`) |
+| `temperature` | float | no | Sampling temperature (default: `0.7`) |
+| `stream` | boolean | no | Enable SSE streaming (default: `false`) |
+| `timeout_secs` | integer | no | Timeout in seconds (default: `120`) |
+| `response_format` | object | no | Structured output schema |
+
+### Message format
+
+Each message has a `role` and `content`:
+
+```json
+{"role": "system", "content": "You are a helpful assistant"}
+{"role": "user", "content": "Hello"}
+{"role": "assistant", "content": "Hi! How can I help?"}
+{"role": "user", "content": "What is Rust?"}
+```
+
+### Vision (multimodal)
+
+For vision models, `content` can be an array of parts:
+
+```json
+{
+  "role": "user",
+  "content": [
+    {"type": "text", "text": "Describe this image"},
+    {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,..."}}
+  ]
+}
+```
+
+### Structured output
+
+Use `response_format` to get JSON conforming to a schema:
+
+```json
+{
+  "model": "qwen3.5:9b",
+  "messages": [{"role": "user", "content": "John Doe, john@example.com, 30"}],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "extract",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "email": {"type": "string"},
+          "age": {"type": "integer"}
+        },
+        "required": ["name", "email", "age"]
+      }
+    }
+  }
+}
+```
+
+## Response
+
+```json
+{
+  "id": "gen-abc123",
+  "model": "qwen3.5:9b",
+  "choices": [
+    {
+      "message": {
+        "content": "Quantum computing uses quantum bits..."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 15,
+    "completion_tokens": 42,
+    "total_tokens": 57
+  },
+  "metadata": {
+    "node_id": "node-xyz"
+  }
+}
+```
+
+## Streaming
+
+Set `"stream": true` to receive Server-Sent Events:
+
+```bash
+curl https://inference.dria.co/v1/chat/completions \
+  -H "Authorization: Bearer dkn_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen3.5:9b",
+    "messages": [{"role": "user", "content": "hello"}],
+    "stream": true
+  }'
+```
+
+Each event is a `data:` line with a JSON chunk:
+
+```
+data: {"choices":[{"delta":{"content":"Hello"}}]}
+data: {"choices":[{"delta":{"content":"!"}}]}
+data: {"choices":[{"delta":{"content":" How"}}]}
+data: [DONE]
+```
+
+The stream ends with `data: [DONE]`.

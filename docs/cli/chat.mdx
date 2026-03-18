@@ -1,0 +1,71 @@
+---
+title: "Chat"
+description: "Multi-turn conversations with persistent history."
+---
+
+# dria chat
+
+Have multi-turn conversations with persistent history. Each conversation is stored locally at `~/.dria/chats/` and can be continued later.
+
+## Start a new conversation
+
+```bash
+dria chat -m qwen3.5:9b "What is Rust?"
+```
+
+This prints the response and a conversation ID (e.g., `a1b2c3d4`).
+
+## Continue a conversation
+
+Use the conversation ID from above:
+
+```bash
+dria chat a1b2c3d4 "Tell me more about ownership"
+```
+
+The full message history is sent with each request, so the model has context from previous turns.
+
+## Read conversation history
+
+```bash
+dria chat a1b2c3d4
+```
+
+## List all conversations
+
+```bash
+dria chat list
+```
+
+## Delete a conversation
+
+```bash
+dria chat delete a1b2c3d4
+```
+
+## System prompts
+
+Set a system prompt when starting a new conversation:
+
+```bash
+dria chat -m qwen3.5:9b --system "You are a helpful coding assistant" "How do I read a file in Python?"
+```
+
+The system prompt persists for the entire conversation.
+
+## Piping
+
+```bash
+echo "explain monads" | dria chat -m qwen3.5:9b
+```
+
+## Options
+
+| Option | Description | Default |
+|---|---|---|
+| `-m, --model <model>` | Model to use (required for new conversations) | — |
+| `--system <prompt>` | System prompt (new conversations only) | — |
+| `--no-stream` | Disable streaming | `false` |
+| `--json` | Output raw JSON | `false` |
+| `--max-tokens <n>` | Max tokens | `2048` |
+| `--temperature <t>` | Sampling temperature | `0.7` |

@@ -1,0 +1,63 @@
+---
+title: "Wallet & Credits"
+description: "Create your wallet, register with Dria, and add USDC credits."
+---
+
+# Wallet & Credits
+
+Dria uses Ethereum wallets for identity and USDC on Base for payments. The CLI handles all of this for you.
+
+## Create a wallet
+
+```bash
+dria init
+```
+
+This will:
+1. Generate a new Ethereum wallet
+2. Register the wallet with the Dria network
+3. Save your config (private key + API key) to `~/.dria/config.json`
+
+To import an existing wallet instead:
+
+```bash
+dria init --private-key 0xYOUR_PRIVATE_KEY
+```
+
+If you've already initialized, run with `--force` to overwrite:
+
+```bash
+dria init --force
+```
+
+## Add credits
+
+Deposit USDC credits via the x402 payment protocol:
+
+```bash
+dria topup --amount 10
+```
+
+This signs a USDC `TransferWithAuthorization` on Base and settles on-chain. You'll see the transaction hash in the output.
+
+## Check balance
+
+```bash
+dria balance
+```
+
+```bash
+# Machine-readable
+dria balance --json
+```
+
+## How payments work
+
+Dria uses the [x402 payment protocol](https://www.x402.org/). When you run `dria topup`:
+
+1. The CLI requests payment details from the server (receives a `402` response)
+2. Your wallet signs a USDC transfer authorization (EIP-3009 / EIP-712) on Base
+3. The signed authorization is sent back to complete the deposit
+4. Credits are added to your account immediately
+
+Your private key never leaves your machine — only the signed authorization is transmitted.

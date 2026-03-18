@@ -1,5 +1,53 @@
 ---
-title: Welcome to Dria
+title: "What is Dria?"
+description: "Decentralized LLM inference from the terminal or your code."
 ---
 
-Dria is an inference lab focused on accessibility, coding and agentic behavior. This documentation bundles high-throughput batch inference and automated prompt evolution behind one API surface. 
+# Dria Inference Network
+
+Dria is a decentralized inference network that gives you access to open-source LLMs through a simple CLI or an OpenAI-compatible API. Generate text, process images, run batch jobs, and have multi-turn conversations — all powered by a distributed network of compute nodes.
+
+## Why Dria?
+
+- **Decentralized** — Requests are routed across a network of nodes, not a single provider. No vendor lock-in, no single point of failure.
+- **Pay with USDC** — On-chain credits via the x402 payment protocol. No subscriptions, no invoices — just top up and go.
+- **CLI-first** — A single `npm install` gives you `dria generate`, `dria batch`, `dria chat`, and more. Pipe-friendly by default.
+- **OpenAI-compatible** — The API follows the `/v1/chat/completions` spec, so existing tools and libraries work with minimal changes.
+- **Auto model selection** — In batch mode, Dria automatically dispatches work across the best available models proportional to node availability.
+
+## How it works
+
+1. **Initialize** — `dria init` generates an Ethereum wallet and registers you with the network.
+2. **Top up** — `dria topup --amount 10` deposits USDC credits via on-chain signing.
+3. **Use** — Run inference through the CLI, the Node.js SDK, or the HTTP API.
+
+## Quick example
+
+```bash
+# Install
+npm install -g @dria/cli
+
+# Setup (one-time)
+dria init
+dria topup --amount 5
+
+# Generate
+dria generate -m qwen3.5:9b "explain quantum computing in one sentence"
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/docs/quickstart/installation">
+    Install the CLI and get set up in under a minute.
+  </Card>
+  <Card title="Wallet & Credits" icon="wallet" href="/docs/quickstart/wallet-and-credits">
+    Create your wallet and add USDC credits.
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/docs/cli/generate">
+    Explore all CLI commands.
+  </Card>
+  <Card title="API Reference" icon="book" href="/docs/api/overview">
+    Use the OpenAI-compatible HTTP API directly.
+  </Card>
+</CardGroup>
