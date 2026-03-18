@@ -1,0 +1,93 @@
+---
+title: "Credits"
+description: "Check balance and deposit USDC credits."
+---
+
+# Credits
+
+## Check balance
+
+```
+GET /v1/credits/balance
+```
+
+```bash
+curl https://inference.dria.co/v1/credits/balance \
+  -H "Authorization: Bearer dkn_live_..."
+```
+
+**Response:**
+
+```json
+{
+  "balance": 1000,
+  "balance_usdc": "10.00"
+}
+```
+
+## Top up credits
+
+```
+POST /v1/credits/topup
+```
+
+The topup flow uses the x402 payment protocol and requires two requests:
+
+### Step 1: Request payment details
+
+```bash
+curl -X POST https://inference.dria.co/v1/credits/topup \
+  -H "Authorization: Bearer dkn_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"amount": "10"}'
+```
+
+This returns a `402` response with payment requirements:
+
+```json
+{
+  "x402Version": 1,
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "base",
+      "maxAmountRequired": "10000000",
+      "resource": "/v1/credits/topup",
+      "payTo": "0xReceiverAddress",
+      "asset": "0xUSDCContractAddress",
+      "maxTimeoutSeconds": 300,
+      "extra": {
+        "name": "USD Coin",
+        "version": "2"
+      }
+    }
+  ]
+}
+```
+
+### Step 2: Sign and submit payment
+
+Sign a USDC `TransferWithAuthorization` (EIP-3009 / EIP-712) using the details from Step 1, encode the payment as base64, and resend the request with an `X-PAYMENT` header:
+
+```bash
+curl -X POST https://inference.dria.co/v1/credits/topup \
+  -H "Authorization: Bearer dkn_live_..." \
+  -H "Content-Type: application/json" \
+  -H "X-PAYMENT: base64EncodedPaymentPayload" \
+  -d '{"amount": "10"}'
+```
+
+**Response:**
+
+```json
+{
+  "credits_added": 1000,
+  "balance": 2000,
+  "balance_usdc": "20.00",
+  "txHash": "0xTransactionHash"
+}
+```
+
+<Note>
+The `dria topup` CLI command handles this entire flow automatically. Use the API directly only if you need custom integration.
+</Note>

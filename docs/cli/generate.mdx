@@ -1,0 +1,90 @@
+---
+title: "Generate"
+description: "Generate text, process images, and extract structured data."
+---
+
+# dria generate
+
+Generate text with any model on the network. Streams by default.
+
+## Basic usage
+
+```bash
+dria generate -m qwen3.5:9b "explain quantum computing in one sentence"
+```
+
+## Streaming vs non-streaming
+
+Streaming is enabled by default — tokens appear as they're generated:
+
+```bash
+# Stream (default)
+dria generate -m qwen3.5:9b "write a haiku about rust"
+
+# Wait for the full response
+dria generate -m qwen3.5:9b "write a haiku about rust" --no-stream
+
+# Get the full API response as JSON
+dria generate -m qwen3.5:9b "hello" --json
+```
+
+## Vision (image attachments)
+
+Attach images with `-a`. Use a vision model (models with `-vl` in the name):
+
+```bash
+dria generate -m qwen2.5-vl:7b "describe this image" -a photo.jpg
+```
+
+Multiple attachments:
+
+```bash
+dria generate -m qwen2.5-vl:7b "compare these" -a before.png -a after.png
+```
+
+Supported formats: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.bmp`
+
+## Structured output
+
+Extract structured data by specifying field names:
+
+```bash
+dria generate -m qwen3.5:9b "John Doe, john@example.com, age 30" --schema 'name,email,age:integer'
+```
+
+Field types: `string` (default), `integer`, `number`, `boolean`. Separate with commas, specify type with `:`.
+
+For complex schemas, use a JSON schema file:
+
+```bash
+dria generate -m qwen3.5:9b "extract the data" --schema-file schema.json
+```
+
+## Piping
+
+Pipe prompts from stdin:
+
+```bash
+echo "translate to French: hello world" | dria generate -m qwen3.5:9b
+cat essay.txt | dria generate -m qwen3.5:9b "summarize this"
+```
+
+Pipe output to other tools:
+
+```bash
+dria generate -m qwen3.5:9b "list 5 colors as JSON" | jq .
+```
+
+## Options
+
+| Option | Description | Default |
+|---|---|---|
+| `-m, --model <model>` | Model to use | **required** |
+| `-a, --attachment <file>` | Image/audio file (repeatable) | — |
+| `--schema <fields>` | Comma-separated field names for structured output | — |
+| `--schema-file <path>` | JSON schema file for structured output | — |
+| `--no-stream` | Disable streaming | `false` |
+| `--json` | Output full JSON response (non-streaming) | `false` |
+| `--max-tokens <n>` | Maximum tokens to generate | `2048` |
+| `--temperature <t>` | Sampling temperature | `0.7` |
+| `--timeout <seconds>` | Timeout for non-streaming requests | `120` |

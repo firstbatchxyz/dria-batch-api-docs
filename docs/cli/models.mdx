@@ -1,0 +1,41 @@
+---
+title: "Models"
+description: "Browse available models on the Dria network."
+---
+
+# Models
+
+The Dria network hosts a variety of open-source models. Availability depends on which nodes are online.
+
+## List models
+
+```bash
+dria models
+```
+
+```bash
+# Machine-readable
+dria models --json
+```
+
+## Model types
+
+Models are classified by their capabilities:
+
+| Type | Naming convention | Example |
+|---|---|---|
+| **Text** | Default | `qwen3.5:9b`, `llama3.1:8b` |
+| **Vision** | Contains `-vl` | `qwen2.5-vl:7b` |
+| **Audio** | Contains `-audio` | `qwen2.5-audio:7b` |
+
+Use text models for standard generation. Use vision models when attaching images. Audio models support audio file attachments.
+
+## Auto selection
+
+In batch mode, when you don't specify a model with `-m`, Dria automatically:
+
+1. Checks node availability for each model
+2. Dispatches prompts proportionally — models with more nodes get more requests
+3. Falls back to alternative models if a node goes down
+
+For single generation (`dria generate`), you must specify a model with `-m`.

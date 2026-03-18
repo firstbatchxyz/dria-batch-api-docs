@@ -1,0 +1,113 @@
+---
+title: "API Overview"
+description: "OpenAI-compatible HTTP API for the Dria Inference Network."
+---
+
+# API Overview
+
+Dria exposes an OpenAI-compatible REST API at:
+
+```
+https://inference.dria.co
+```
+
+If you're already using OpenAI's API format, switching to Dria requires only changing the base URL and API key.
+
+## Base URL
+
+```
+https://inference.dria.co/v1
+```
+
+## Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/v1/chat/completions` | Generate text (streaming and non-streaming) |
+| `GET` | `/v1/models` | List available models |
+| `GET` | `/v1/credits/balance` | Check credit balance |
+| `POST` | `/v1/credits/topup` | Deposit USDC credits |
+| `POST` | `/v1/channel` | Post a message to a channel |
+| `GET` | `/v1/channel` | Read messages from a channel |
+| `POST` | `/v1/auth/wallet` | Register a wallet and get an API key |
+
+## Authentication
+
+All requests (except `/v1/auth/wallet`) require a Bearer token:
+
+```
+Authorization: Bearer dkn_live_...
+```
+
+See [Authentication](/docs/api/authentication) for details on obtaining an API key.
+
+## Response format
+
+Responses follow the OpenAI format. For example, a chat completion returns:
+
+```json
+{
+  "id": "gen-abc123",
+  "model": "qwen3.5:9b",
+  "choices": [
+    {
+      "message": { "content": "Hello! How can I help?" },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 8,
+    "total_tokens": 20
+  },
+  "metadata": {
+    "node_id": "node-xyz"
+  }
+}
+```
+
+## Errors
+
+Errors return standard HTTP status codes with a text body:
+
+| Status | Meaning |
+|---|---|
+| `400` | Bad request (invalid parameters) |
+| `401` | Unauthorized (missing or invalid API key) |
+| `402` | Payment required (used in topup flow) |
+| `429` | Rate limited (check `Retry-After` header) |
+| `503` | No nodes available for the requested model |
+
+## Using with OpenAI SDK
+
+Since the API is OpenAI-compatible, you can use the official OpenAI SDK:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="dkn_live_...",
+    base_url="https://inference.dria.co/v1",
+)
+
+response = client.chat.completions.create(
+    model="qwen3.5:9b",
+    messages=[{"role": "user", "content": "hello"}],
+)
+print(response.choices[0].message.content)
+```
+
+```typescript
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'dkn_live_...',
+  baseURL: 'https://inference.dria.co/v1',
+});
+
+const response = await client.chat.completions.create({
+  model: 'qwen3.5:9b',
+  messages: [{ role: 'user', content: 'hello' }],
+});
+console.log(response.choices[0].message.content);
+```

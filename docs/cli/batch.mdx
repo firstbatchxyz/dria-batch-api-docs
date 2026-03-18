@@ -1,0 +1,82 @@
+---
+title: "Batch"
+description: "Process thousands of prompts in parallel from a JSONL file."
+---
+
+# dria batch
+
+Run parallel inference on a JSONL file. Dria automatically distributes work across available models and handles retries with exponential backoff.
+
+## Basic usage
+
+```bash
+# Auto-select models based on node availability
+dria batch prompts.jsonl -o results.jsonl
+
+# Use a specific model
+dria batch -m qwen3.5:9b prompts.jsonl -o results.jsonl
+
+# Increase concurrency (default: 10)
+dria batch prompts.jsonl -c 20 -o results.jsonl
+```
+
+## Input format
+
+Each line is a JSON object with a `prompt` field. Optional `id` and `attachment` fields:
+
+```jsonl
+{"prompt": "classify this text as positive or negative", "id": "doc_001"}
+{"prompt": "describe this image", "id": "doc_002", "attachment": "img.jpg"}
+{"prompt": "summarize: The quick brown fox...", "id": "doc_003"}
+```
+
+## Output format
+
+Results are written as JSONL. Each line contains the model used, output text, and token count:
+
+```jsonl
+{"id": "doc_001", "model": "qwen3.5:9b", "output": "positive", "tokens": 12}
+{"id": "doc_002", "model": "qwen2.5-vl:7b", "output": "A brown fox jumping...", "tokens": 89}
+{"id": "doc_003", "model": "qwen3.5:9b", "error": "503: no nodes available"}
+```
+
+Failed items include an `error` field instead of `output`.
+
+## Auto model selection
+
+When you don't specify `-m`, Dria:
+
+1. Fetches all available models and their node counts
+2. Classifies each prompt by content type (text, vision, audio) based on the attachment
+3. Distributes prompts across models proportionally to node availability
+4. If a model goes down (503), automatically falls back to the next best model
+
+This means your batch jobs are resilient to individual model failures.
+
+## Structured output in batch
+
+Apply structured output to all prompts:
+
+```bash
+dria batch prompts.jsonl -o results.jsonl --schema 'sentiment,confidence:number'
+```
+
+Or with a JSON schema file:
+
+```bash
+dria batch prompts.jsonl -o results.jsonl --schema-file schema.json
+```
+
+## Options
+
+| Option | Description | Default |
+|---|---|---|
+| `-m, --model <model>` | Model to use (auto-selects if omitted) | auto |
+| `-o, --output <file>` | Output JSONL file | stdout |
+| `-c, --concurrency <n>` | Max parallel requests | `10` |
+| `--schema <fields>` | Structured output fields | — |
+| `--schema-file <path>` | JSON schema file | — |
+| `--retries <n>` | Max retries per failed item | `3` |
+| `--max-tokens <n>` | Max tokens per request | `2048` |
+| `--temperature <t>` | Sampling temperature | `0.7` |
+| `--json` | Suppress spinners (for piping) | `false` |

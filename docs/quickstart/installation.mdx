@@ -1,0 +1,40 @@
+---
+title: "Installation"
+description: "Install the Dria CLI and verify it's working."
+---
+
+# Installation
+
+## Requirements
+
+- **Node.js** 18 or later
+
+## Install globally
+
+```bash
+npm install -g @dria/cli
+```
+
+Verify:
+
+```bash
+dria --version
+```
+
+## Use without installing
+
+You can run any command directly with `npx`:
+
+```bash
+npx @dria/cli generate -m qwen3.5:9b "hello"
+```
+
+## What's next
+
+After installation, you need to create a wallet and register with the network:
+
+```bash
+dria init
+```
+
+See [Wallet & Credits](/docs/quickstart/wallet-and-credits) for the full setup.
